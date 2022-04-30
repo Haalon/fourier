@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebGL Cellular Automatons</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- <link rel="icon" type="image/jpg" href="favicon.jpg"/> -->
+
+    <link href="style.css" rel="stylesheet">
+    <script type="module" src="main.js"></script>
+
+</head>
+
+<body>
+    <div class="container column">
+
+        <div id="header">
+
+        </div>
+
+        <div id="body" class="row flex-grow-1">
+            <div class="column flex-grow-1">
+                <div class="flex-grow-1">
+                    <canvas id="magnitude" ></canvas>
+                </div>
+                
+                <input type="file" id="magnitude_input" name="magnitude_input" accept="image/*">
+            </div>
+            
+            <div class="column flex-grow-1">
+                <div class="flex-grow-1">
+                    <canvas id="space" ></canvas>
+                </div>
+                <input type="file" id="space_input" name="space_input" accept="image/*">
+            </div>
+
+            <div class="column flex-grow-1">
+                <div class="flex-grow-1">
+                    <canvas id="phase" ></canvas>
+                </div>
+                <input type="file" id="phase_input" name="phase_input" accept="image/*">
+            </div>
+
+        </div>
+
+        <div id="footer">
+
+        </div>
+
+    </div>
+</body>
+
+</html>

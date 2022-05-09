@@ -1,4 +1,6 @@
 
+import Pica from 'pica' 
+
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
     main();
@@ -32,8 +34,11 @@ function setImage(input, canvas) {
 
     reader.onload = async () => {
         const img = await loadImage(reader.result)
-        let ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0,img.width,img.height,0,0, canvas.clientWidth, canvas.clientHeight)
+        const p = new Pica()
+        p.resize(img, canvas)
+        
+        // let ctx = canvas.getContext("2d");
+        // ctx.drawImage(img, 0, 0,img.width,img.height,0,0, canvas.clientWidth, canvas.clientHeight)
     };
 }
 

@@ -1,15 +1,12 @@
 
 import Pica from 'pica' 
+import { loadImageByFile } from './imageUtils.js'
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
     main();
 } else {
     document.addEventListener("DOMContentLoaded", main);
-}
-
-function loadImage(url) {
-    return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = url; });
 }
 
 function getElementsWithId() {
@@ -24,22 +21,13 @@ function getElementsWithId() {
     return res;
 }
 
-function setImage(input, canvas) {
+async function setImage(input, canvas) {
 
     const file = input.files[0];
+    const img = await loadImageByFile(file);
 
-    let reader = new FileReader();
-
-    reader.readAsDataURL(file);
-
-    reader.onload = async () => {
-        const img = await loadImage(reader.result)
-        const p = new Pica()
-        p.resize(img, canvas)
-        
-        // let ctx = canvas.getContext("2d");
-        // ctx.drawImage(img, 0, 0,img.width,img.height,0,0, canvas.clientWidth, canvas.clientHeight)
-    };
+    const p = new Pica();
+    p.resize(img, canvas);
 }
 
 function main() {

@@ -28,6 +28,14 @@ html, body {
     flex-grow: 1;
 }
 
+.absolute {
+    position: absolute;
+}
+
+.hidden {
+    display: none;
+}
+
 canvas {
     width: 512px;
     height: 512px;

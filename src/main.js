@@ -1,6 +1,4 @@
-
-import Pica from 'pica' 
-import { loadImageByFile } from './imageUtils.js'
+import { loadImageByFile, resizeImage } from './imageUtils.js'
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -24,25 +22,25 @@ function getElementsWithId() {
 async function setImage(input, canvas) {
 
     const file = input.files[0];
-    const img = await loadImageByFile(file);
+    let img = await loadImageByFile(file);
+    img = await resizeImage(img, 512, 512);
 
-    const p = new Pica();
-    p.resize(img, canvas);
+    const context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0);
 }
 
 function main() {
     const elems = getElementsWithId();
 
     elems.space_input.onchange = () => {
-        setImage(space_input, space);
+        setImage(elems.space_input, elems.space);
     }
 
-    elems.magnitude_input.onchange = () => {
-        setImage(magnitude_input, magnitude);
+    elems.magnitude_input.onchange = async () => {
+        setImage(elems.magnitude_input, elems.magnitude);
     }
 
     elems.phase_input.onchange = () => {
-        setImage(phase_input, phase);
+        setImage(elems.hase_input, elems.phase);
     }
-
 }

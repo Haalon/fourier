@@ -41,6 +41,6 @@ function main() {
     }
 
     elems.phase_input.onchange = () => {
-        setImage(elems.hase_input, elems.phase);
+        setImage(elems.phase_input, elems.phase);
     }
 }

@@ -42,7 +42,11 @@ function main() {
         const res = fftPixelData(arr, 512, 512);
 
         magnitudeCtrl.setImage(res.magnitude, 512, 512);
+        magnitudeCtrl.shift(256, 256);
+
         phaseCtrl.setImage(res.phase, 512, 512);
+        phaseCtrl.shift(256, 256);
+
     }
 
     spaceCtrl.drawHook = () => {

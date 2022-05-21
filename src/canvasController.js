@@ -25,9 +25,9 @@ export class CanvasController {
         this.program_draw = this.igloo.program(copyVert, drawFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
-        this.tex_main = this.igloo.texture(null, gl.RGBA)
+        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT)
             .blank(this.viewsize[0], this.viewsize[1]);
-        this.tex_temp = this.igloo.texture(null, gl.RGBA)
+        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT)
             .blank(this.viewsize[0], this.viewsize[1]);
 
 
@@ -115,6 +115,22 @@ export class CanvasController {
         this.show();
     }
 
+    shift(dx, dy) {
+        const gl = this.gl
+        this.frameBuffer.attach(this.tex_temp);
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        this.tex_main.bind(0);
+        this.program_copy.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('u_offset', new Float32Array([dx, dy]))
+            .uniform('screenSize', this.viewsize)
+            .uniformi('texture', 0)
+            .draw(gl.TRIANGLE_STRIP, 4);
+
+        this._swapTextures();
+        this.show();
+    }
+
     show() {
         const gl = this.gl
         this.igloo.defaultFramebuffer.bind();
@@ -122,6 +138,7 @@ export class CanvasController {
         this.tex_main.bind(0);
         this.program_copy.use()
             .attrib('a_position', this.quad, 2)
+            .uniform('u_offset', new Float32Array([0, 0]))
             .uniform('screenSize', this.viewsize)
             .uniformi('texture', 0)
             .draw(gl.TRIANGLE_STRIP, 4);

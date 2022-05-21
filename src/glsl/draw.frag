@@ -126,9 +126,9 @@ void main(){
     vec2 tempOrg = u_org;
     vec2 tempEnd = u_end;
 
-
+    return;
     // wrap for thick brushes
-
+    
     if(gl_FragCoord.x <= u_rad)
         dx = screenSize.x;
     else if(gl_FragCoord.x >= screenSize.x - u_rad)

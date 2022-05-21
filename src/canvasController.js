@@ -53,11 +53,16 @@ export class CanvasController {
             e.stopPropagation();
             this.start_pos = this._getMousePos(e)
         })
-        this.canvas.addEventListener('mouseup', e => {
+        this.canvas.addEventListener('mousemove', e => {
             e.stopPropagation();
             if (!this.start_pos) return;
             const end_pos = this._getMousePos(e);
-            this.draw(this.start_pos, end_pos)
+            this.draw(this.start_pos, end_pos);
+            this.start_pos = end_pos;
+        })
+        this.canvas.addEventListener('mouseup', e => {
+            e.stopPropagation();
+            this.start_pos = null;
         })
     }
 

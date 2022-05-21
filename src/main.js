@@ -37,14 +37,22 @@ function main() {
     const magnitudeCtrl = new CanvasController(elems.magnitude);
     const phaseCtrl = new CanvasController(elems.phase);
 
-    elems.space_input.onchange = async () => {
-        await setImage(elems.space_input, spaceCtrl);
-        spaceCtrl.sync();
+    const forwardFourier = () => {
         const arr = spaceCtrl.getArray();
         const res = fftPixelData(arr, 512, 512);
 
         magnitudeCtrl.setImage(res.magnitude, 512, 512);
         phaseCtrl.setImage(res.phase, 512, 512);
+    }
+
+    spaceCtrl.drawHook = () => {
+        forwardFourier();
+    }
+
+    elems.space_input.onchange = async () => {
+        await setImage(elems.space_input, spaceCtrl);
+        spaceCtrl.sync();
+        forwardFourier();
     }
 
     elems.magnitude_input.onchange = async () => {

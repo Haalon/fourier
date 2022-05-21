@@ -5,8 +5,9 @@ import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
 
 export class CanvasController {
-    constructor(canvas) {
+    constructor(canvas, drawHook) {
         this.canvas = canvas;
+        this.drawHook = drawHook;
         this.viewsize = new Float32Array([canvas.width, canvas.height]);
 
         var gl = canvas.getContext("webgl");
@@ -63,6 +64,7 @@ export class CanvasController {
         this.canvas.addEventListener('mouseup', e => {
             e.stopPropagation();
             this.start_pos = null;
+            if (this.drawHook) this.drawHook(this);
         })
     }
 

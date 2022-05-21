@@ -66,6 +66,26 @@ export class CanvasController {
         })
     }
 
+    sync() {
+        this.gl.finish();
+    }
+
+    getArray() {
+        const gl = this.gl;
+        const texture = this.tex_main;
+        const [width, height] = this.viewsize;
+
+        var framebuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.texture, 0);
+    
+        // Read the contents of the framebuffer
+        var data = new Uint8Array(width * height * 4);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+        return data;
+    }
+
     draw(from, to, col=null, rad=5, mode=2) {
         from = new Float32Array(from);
         to = new Float32Array(to);
@@ -105,8 +125,8 @@ export class CanvasController {
     }
 
 
-    setImage(img) {
-        this.tex_main.set(img);
+    setImage(img, w, h) {
+        this.tex_main.set(img, w, h);
         this.show();
     }
 }

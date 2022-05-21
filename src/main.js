@@ -1,5 +1,6 @@
 import { loadImageByFile, resizeImage } from './imageUtils.js'
 import { CanvasController } from './canvasController.js'
+import { fftPixelData } from './fft.js'
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -26,7 +27,7 @@ async function setImage(input, ctrl) {
     let img = await loadImageByFile(file);
     img = await resizeImage(img, 512, 512);
 
-    ctrl.setImage(img)
+    ctrl.setImage(img);
 }
 
 function main() {
@@ -36,15 +37,21 @@ function main() {
     const magnitudeCtrl = new CanvasController(elems.magnitude);
     const phaseCtrl = new CanvasController(elems.phase);
 
-    elems.space_input.onchange = () => {
-        setImage(elems.space_input, spaceCtrl);
+    elems.space_input.onchange = async () => {
+        await setImage(elems.space_input, spaceCtrl);
+        spaceCtrl.sync();
+        const arr = spaceCtrl.getArray();
+        const res = fftPixelData(arr, 512, 512);
+
+        magnitudeCtrl.setImage(res.magnitude, 512, 512);
+        phaseCtrl.setImage(res.phase, 512, 512);
     }
 
     elems.magnitude_input.onchange = async () => {
-        setImage(elems.magnitude_input, magnitudeCtrl);
+        await setImage(elems.magnitude_input, magnitudeCtrl);
     }
 
-    elems.phase_input.onchange = () => {
-        setImage(elems.phase_input, phaseCtrl);
+    elems.phase_input.onchange = async () => {
+        await setImage(elems.phase_input, phaseCtrl);
     }
 }

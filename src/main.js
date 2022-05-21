@@ -1,4 +1,5 @@
 import { loadImageByFile, resizeImage } from './imageUtils.js'
+import { CanvasController } from './canvasController.js'
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -19,28 +20,31 @@ function getElementsWithId() {
     return res;
 }
 
-async function setImage(input, canvas) {
+async function setImage(input, ctrl) {
 
     const file = input.files[0];
     let img = await loadImageByFile(file);
     img = await resizeImage(img, 512, 512);
 
-    const context = canvas.getContext('2d');
-    context.drawImage(img, 0, 0);
+    ctrl.setImage(img)
 }
 
 function main() {
     const elems = getElementsWithId();
 
+    const spaceCtrl = new CanvasController(elems.space);
+    const magnitudeCtrl = new CanvasController(elems.magnitude);
+    const phaseCtrl = new CanvasController(elems.phase);
+
     elems.space_input.onchange = () => {
-        setImage(elems.space_input, elems.space);
+        setImage(elems.space_input, spaceCtrl);
     }
 
     elems.magnitude_input.onchange = async () => {
-        setImage(elems.magnitude_input, elems.magnitude);
+        setImage(elems.magnitude_input, magnitudeCtrl);
     }
 
     elems.phase_input.onchange = () => {
-        setImage(elems.phase_input, elems.phase);
+        setImage(elems.phase_input, phaseCtrl);
     }
 }

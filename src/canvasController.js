@@ -16,6 +16,7 @@ export class CanvasController {
         }
 
         this.gl = gl
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         this.igloo = new Igloo(gl)
         this.quad = this.igloo.array(Igloo.QUAD2);

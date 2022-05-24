@@ -64,8 +64,16 @@ export class CanvasController {
         })
         this.canvas.addEventListener('mouseup', e => {
             e.stopPropagation();
+            
+            if (this.drawHook && this.start_pos) this.drawHook(this);
             this.start_pos = null;
-            if (this.drawHook) this.drawHook(this);
+        })
+
+        this.canvas.addEventListener('mouseleave', e => {
+            e.stopPropagation();
+           
+            if (this.drawHook && this.start_pos) this.drawHook(this);
+            this.start_pos = null;
         })
     }
 

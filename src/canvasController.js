@@ -16,6 +16,9 @@ export class CanvasController {
         }
 
         this.gl = gl
+        gl.getExtension('OES_texture_float');
+        gl.getExtension('WEBGL_color_buffer_float');
+        
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         this.igloo = new Igloo(gl)
@@ -25,9 +28,9 @@ export class CanvasController {
         this.program_draw = this.igloo.program(copyVert, drawFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
-        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT)
+        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT)
             .blank(this.viewsize[0], this.viewsize[1]);
-        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT)
+        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT)
             .blank(this.viewsize[0], this.viewsize[1]);
 
 
@@ -91,8 +94,8 @@ export class CanvasController {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.texture, 0);
     
         // Read the contents of the framebuffer
-        var data = new Uint8Array(width * height * 4);
-        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        var data = new Float32Array(width * height * 4);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.FLOAT, data);
 
         return data;
     }

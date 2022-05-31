@@ -4,6 +4,7 @@ import drawFrag from './glsl/draw.frag'
 import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
 import bitReverseFrag from './glsl/bitReverse.frag'
+import dftFrag from './glsl/dft.frag'
 
 export class CanvasController {
     constructor(canvas, drawHook) {
@@ -37,11 +38,15 @@ export class CanvasController {
         this.program_draw = this.igloo.program(copyVert, drawFrag);
 
         this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
+        this.program_dft = this.igloo.program(copyVert, dftFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
         this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
-        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+
+        this.tex_temp1 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+            .blank(this.viewsize[0], this.viewsize[1]);
+        this.tex_temp2 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
 
 
@@ -51,8 +56,8 @@ export class CanvasController {
 
     _swapTextures() {
         var tmp = this.tex_main;
-        this.tex_main = this.tex_temp
-        this.tex_temp = tmp;
+        this.tex_main = this.tex_temp1
+        this.tex_temp1 = tmp;
     };
 
     _getMousePos(event) {
@@ -95,9 +100,9 @@ export class CanvasController {
         this.gl.finish();
     }
 
-    getArray() {
+    getArray(swapTextures=false) {
         const gl = this.gl;
-        const texture = this.tex_main;
+        const texture = swapTextures ? this.tex_temp1 : this.tex_main;
         const [width, height] = this.viewsize;
 
         var framebuffer = gl.createFramebuffer();
@@ -111,61 +116,51 @@ export class CanvasController {
         return data;
     }
 
-    draw(from, to, col=null, rad=5, mode=2) {
+    _operation(program, args={}, intUniforms=[], inPlace=true) {
+        const gl = this.gl;
+        this.frameBuffer.attach(this.tex_temp1);
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        this.tex_main.bind(0);
+        program = program.use()
+            .attrib('a_position', this.quad, 2)
+            .uniformi('u_texture', 0)
+            .uniform('screenSize', this.viewsize);
+
+        for (const [key, val] of Object.entries(args)) {
+            if (intUniforms.includes(key)) program = program.uniformi(key, val);
+            else program = program.uniform(key, val);
+        }
+
+        program.draw(gl.TRIANGLE_STRIP, 4);
+        if (!inPlace) {
+            return this.getArray(true);
+        }
+
+        this._swapTextures();
+        this.show();
+    }
+
+    draw(from, to, col=null, rad=5, mode=2, inPlace=true) {
         from = new Float32Array(from);
         to = new Float32Array(to);
         col = col ? new Float32Array(col) : new Float32Array([1,1,1,1]);
 
-
-        const gl = this.gl
-
-        this.frameBuffer.attach(this.tex_temp);
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        this.tex_main.bind(0);
-        this.program_draw.use()
-            .attrib('a_position', this.quad, 2)
-            .uniformi('u_texture', 0)
-            .uniform('screenSize', this.viewsize)
-            .uniform('u_org', from)
-            .uniform('u_end', to)
-            .uniform('u_col', col)
-            .uniform('u_rad', rad-1)
-            .uniformi('u_mode', mode)
-            .draw(gl.TRIANGLE_STRIP, 4);
-        
-        this._swapTextures();
-        this.show();
+        return this._operation(this.program_draw, {
+            u_org: from,
+            u_end: to,
+            u_col: col,
+            u_rad: rad-1,
+            u_mode: mode
+        }, ['u_mode'], inPlace);
     }
 
-    shift(dx, dy) {
-        const gl = this.gl
-        this.frameBuffer.attach(this.tex_temp);
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        this.tex_main.bind(0);
-        this.program_copy.use()
-            .attrib('a_position', this.quad, 2)
-            .uniform('u_offset', new Float32Array([dx, dy]))
-            .uniform('screenSize', this.viewsize)
-            .uniformi('u_texture', 0)
-            .draw(gl.TRIANGLE_STRIP, 4);
-
-        this._swapTextures();
-        this.show();
+    shift(dx, dy, inPlace=true) {
+        const u_offset = new Float32Array([dx, dy]);
+        return this._operation(this.program_copy, {u_offset}, [], inPlace);
     }
 
-    bitReverse() {
-        const gl = this.gl
-        this.frameBuffer.attach(this.tex_temp);
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        this.tex_main.bind(0);
-        this.program_bit_reverse.use()
-            .attrib('a_position', this.quad, 2)
-            .uniform('screenSize', this.viewsize)
-            .uniformi('u_texture', 0)
-            .draw(gl.TRIANGLE_STRIP, 4);
-        
-        this._swapTextures();
-        this.show();
+    bitReverse(inPlace=true) {
+        return this._operation(this.program_bit_reverse, {}, [], inPlace);
     }
 
     show() {
@@ -181,6 +176,22 @@ export class CanvasController {
             .draw(gl.TRIANGLE_STRIP, 4);
     }
 
+
+    dft() {
+        const magnitude = this._operation(this.program_dft, {
+            u_direction: -1,
+            u_normalise: 0,
+            u_mode: 1
+        }, ['u_normalise', 'u_mode'], false);
+
+        const phase = this._operation(this.program_dft, {
+            u_direction: -1,
+            u_normalise: 0,
+            u_mode: 0
+        }, ['u_normalise', 'u_mode'], false);
+
+        return {magnitude, phase};
+    }
 
     setImage(img, w, h) {
         this.tex_main.set(img, w, h);

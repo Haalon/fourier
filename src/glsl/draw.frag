@@ -1,5 +1,7 @@
+#version 300 es
+
 precision mediump float;
-uniform sampler2D texture;
+uniform sampler2D u_texture;
 uniform vec2 screenSize;
 
 uniform vec2 u_org;
@@ -9,6 +11,7 @@ uniform vec4 u_col;
 
 uniform int u_mode;
 
+out vec4 outColor;
 
 float d_1(vec2 o, vec2 e) {
     vec2 delta = abs(e - o);
@@ -113,11 +116,11 @@ float line_dist(vec2 v, vec2 w, vec2 p) {
 
 void main(){
 
-    gl_FragColor = texture2D(texture, gl_FragCoord.xy / screenSize);
+    outColor = texture(u_texture, gl_FragCoord.xy / screenSize);
 
     if(line_dist(u_org, u_end, gl_FragCoord.xy) <= u_rad + 0.55)
     {
-        gl_FragColor=u_col;
+        outColor=u_col;
         return;
     }
 
@@ -136,7 +139,7 @@ void main(){
 
     if(dx!=0.0 && line_dist(u_org, u_end, gl_FragCoord.xy + vec2(dx,0)) <= u_rad + 0.55)
     {
-        gl_FragColor=u_col;
+        outColor=u_col;
         return;
     }
 
@@ -147,13 +150,13 @@ void main(){
 
     if(dy!=0.0 && line_dist(u_org, u_end, gl_FragCoord.xy + vec2(0,dy)) <= u_rad + 0.55)
     {
-        gl_FragColor=u_col;
+        outColor=u_col;
         return;
     }
 
     if(dy!=0.0 && dx!=0.0 && line_dist(u_org, u_end, gl_FragCoord.xy + vec2(dx,dy)) <= u_rad + 0.55)
     {
-        gl_FragColor=u_col;
+        outColor=u_col;
         return;
     }
 }

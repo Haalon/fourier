@@ -1,8 +1,12 @@
+#version 300 es
+
 precision mediump float;
-uniform sampler2D texture;
+uniform sampler2D u_texture;
 uniform vec2 screenSize;
 uniform vec2 u_offset;
 
+out vec4 outColor;
+
 void main() {
-    gl_FragColor = texture2D(texture, (gl_FragCoord.xy + u_offset) / screenSize);
+    outColor = texture(u_texture, (gl_FragCoord.xy + u_offset) / screenSize);
 }

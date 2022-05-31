@@ -3,6 +3,7 @@ import { Igloo } from './igloo.js'
 import drawFrag from './glsl/draw.frag'
 import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
+import bitReverseFrag from './glsl/bitReverse.frag'
 
 export class CanvasController {
     constructor(canvas, drawHook) {
@@ -10,13 +11,21 @@ export class CanvasController {
         this.drawHook = drawHook;
         this.viewsize = new Float32Array([canvas.width, canvas.height]);
 
-        var gl = canvas.getContext("webgl");
+        var gl = canvas.getContext("webgl2");
         if (!gl) {
-            throw new Error('no webgl')
+            throw new Error('no webgl2')
         }
 
         this.gl = gl
-        gl.getExtension('OES_texture_float');
+        // const floattext = gl.getExtension('OES_texture_float');
+        // if (!floattext) {
+        //     alert('no floating textures')
+        // }
+        const ext = gl.getExtension("EXT_color_buffer_float");
+        if (!ext) {
+            alert("need EXT_color_buffer_float");
+            return;
+        }
         gl.getExtension('WEBGL_color_buffer_float');
         
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -27,10 +36,12 @@ export class CanvasController {
         this.program_copy = this.igloo.program(copyVert, copyFrag);
         this.program_draw = this.igloo.program(copyVert, drawFrag);
 
+        this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
+
         this.frameBuffer = this.igloo.framebuffer();
-        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT)
+        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
-        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT)
+        this.tex_temp = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
 
 
@@ -113,7 +124,7 @@ export class CanvasController {
         this.tex_main.bind(0);
         this.program_draw.use()
             .attrib('a_position', this.quad, 2)
-            .uniformi('texture', 0)
+            .uniformi('u_texture', 0)
             .uniform('screenSize', this.viewsize)
             .uniform('u_org', from)
             .uniform('u_end', to)
@@ -135,9 +146,24 @@ export class CanvasController {
             .attrib('a_position', this.quad, 2)
             .uniform('u_offset', new Float32Array([dx, dy]))
             .uniform('screenSize', this.viewsize)
-            .uniformi('texture', 0)
+            .uniformi('u_texture', 0)
             .draw(gl.TRIANGLE_STRIP, 4);
 
+        this._swapTextures();
+        this.show();
+    }
+
+    bitReverse() {
+        const gl = this.gl
+        this.frameBuffer.attach(this.tex_temp);
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        this.tex_main.bind(0);
+        this.program_bit_reverse.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('screenSize', this.viewsize)
+            .uniformi('u_texture', 0)
+            .draw(gl.TRIANGLE_STRIP, 4);
+        
         this._swapTextures();
         this.show();
     }
@@ -151,7 +177,7 @@ export class CanvasController {
             .attrib('a_position', this.quad, 2)
             .uniform('u_offset', new Float32Array([0, 0]))
             .uniform('screenSize', this.viewsize)
-            .uniformi('texture', 0)
+            .uniformi('u_texture', 0)
             .draw(gl.TRIANGLE_STRIP, 4);
     }
 

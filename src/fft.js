@@ -108,7 +108,7 @@ export function fftPixelData(data,w,h, dir=-1, norm=false) {
     const phase = new Float32Array(data);
     const res = [];
 
-    let maxMagn = [0,0,0];
+    let maxMagn = 0;
     for(let c = 0; c < 3; c++)
     {
         const temp = [];
@@ -134,7 +134,7 @@ export function fftPixelData(data,w,h, dir=-1, norm=false) {
             temp2.push(f_col);
 
             const colMagnMax = Math.max(...col.map(CMagn));
-            if (colMagnMax > maxMagn[c]) maxMagn[c] = colMagnMax;
+            if (colMagnMax > maxMagn) maxMagn = colMagnMax;
         }
         res.push(temp2)
     }
@@ -147,7 +147,7 @@ export function fftPixelData(data,w,h, dir=-1, norm=false) {
                 const magnVal = CMagn(item)
                 // correct phase so it can be an image
                 const phaseCorrected = (phaseVal + Math.PI) / Math.PI / 2;
-                setElem(magnitude, i,j,c, logMap(magnVal, maxMagn[c]))
+                setElem(magnitude, i,j,c, logMap(magnVal, maxMagn))
                 setElem(phase, i,j,c, phaseCorrected)
             }
 

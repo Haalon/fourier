@@ -525,10 +525,10 @@ Igloo.Framebuffer.prototype.unbind = function() {
  * @param {Igloo.Texture} texture
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.attach = function(texture) {
+Igloo.Framebuffer.prototype.attach = function(texture, i=0) {
     var gl = this.gl;
-    this.bind();
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+    if (i==0) this.bind();
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0+i,
                             gl.TEXTURE_2D, texture.texture, 0);
     return this;
 };

@@ -5,6 +5,7 @@ import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
 import bitReverseFrag from './glsl/bitReverse.frag'
 import dftFrag from './glsl/dft.frag'
+import logmapFrag from './glsl/logmap.frag'
 
 export class CanvasController {
     constructor(canvas, drawHook) {
@@ -39,6 +40,7 @@ export class CanvasController {
 
         this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
         this.program_dft = this.igloo.program(copyVert, dftFrag);
+        this.program_logmap = this.igloo.program(copyVert, logmapFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
         this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
@@ -100,9 +102,9 @@ export class CanvasController {
         this.gl.finish();
     }
 
-    getArray(swapTextures=false) {
+    getArray(texture) {
         const gl = this.gl;
-        const texture = swapTextures ? this.tex_temp1 : this.tex_main;
+        texture = texture ? texture : this.tex_main;
         const [width, height] = this.viewsize;
 
         var framebuffer = gl.createFramebuffer();
@@ -133,7 +135,7 @@ export class CanvasController {
 
         program.draw(gl.TRIANGLE_STRIP, 4);
         if (!inPlace) {
-            return this.getArray(true);
+            return this.getArray(this.tex_temp1);
         }
 
         this._swapTextures();
@@ -178,17 +180,52 @@ export class CanvasController {
 
 
     dft() {
-        const magnitude = this._operation(this.program_dft, {
-            u_direction: -1,
-            u_normalise: 0,
-            u_mode: 1
-        }, ['u_normalise', 'u_mode'], false);
+        function arrayMax(arr) {
+            var len = arr.length, max = -Infinity;
+            while (len--) {
+              if (arr[len] > max) {
+                max = arr[len];
+              }
+            }
+            return max;
+          };
+        
+        const gl = this.gl;
+        this.frameBuffer.attach(this.tex_temp1);
+        this.frameBuffer.attach(this.tex_temp2, 1);
 
-        const phase = this._operation(this.program_dft, {
-            u_direction: -1,
-            u_normalise: 0,
-            u_mode: 0
-        }, ['u_normalise', 'u_mode'], false);
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+          ]);
+        this.tex_main.bind(0);
+        this.program_dft.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('screenSize', this.viewsize)
+            .uniformi('u_texture', 0)
+            .uniform('u_direction', -1)
+            .uniformi('u_normalise', 0)
+            .draw(gl.TRIANGLE_STRIP, 4);
+        
+        this.sync();
+        const phase = this.getArray(this.tex_temp2);
+        const magnTemp = this.getArray(this.tex_temp1).filter((e,i) => i % 4 !== 3);
+        const max = arrayMax(magnTemp);
+
+        this.frameBuffer = this.igloo.framebuffer();
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        this.frameBuffer.attach(this.tex_temp2);
+        this.tex_temp1.bind(0);
+        this.program_logmap.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('screenSize', this.viewsize)
+            .uniform('u_maxval', max)
+            .uniformi('u_texture', 0)
+            .draw(gl.TRIANGLE_STRIP, 4);
+
+        const magnitude = this.getArray(this.tex_temp2);
+        
 
         return {magnitude, phase};
     }

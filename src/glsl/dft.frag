@@ -1,6 +1,6 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
 uniform sampler2D u_texture;
 uniform vec2 screenSize;
 
@@ -10,14 +10,15 @@ uniform int u_mode;
 
 #define PI 3.1415926535897932384626433832795
 
-out vec4 outColor;
+layout(location = 0) out vec4 magn;
+layout(location = 1) out vec4 phase;
 
 vec2 CMul(vec2 a, vec2 b) {
     return vec2(a.x * b.x - a.y * b.y,  a.x * b.y + a.y * b.x);
 }
 
 float CPhase(vec2 c) {
-    return atan(c.y, c.x);
+    return (atan(c.y, c.x) + PI) / PI / 2.;
 }
 
 vec2 CExp(vec2 c) {
@@ -33,19 +34,25 @@ void main() {
     float k = gl_FragCoord.x - 0.5;
     float l = gl_FragCoord.y - 0.5;
 
+    // magn = vec4(k,0,0,1);
+    // phase = vec4(l,0,0,1);
+
     float N = screenSize.x;
     float M = screenSize.y;
 
     
 
-    for(float i = 0.; i < N; i++) {
-        for(float j = 0.; j < M; j++) {
+    for(int ii = 0; ii < int(N); ii++) {
+        for(int jj = 0; jj < int(M); jj++) {
+            float i = float(ii);
+            float j = float(jj);
             vec2 power = vec2(0., u_direction * 2. * PI * (k*i/N + l*j/M));
-            vec4 term = texture(u_texture, gl_FragCoord.xy / screenSize);
+            vec2 mul = CExp(power);
+            vec4 term = texture(u_texture, vec2(i+0.5, j+0.5) / screenSize);
 
-            resR += CMul(vec2(term.r, 0.), CExp(power));
-            resG += CMul(vec2(term.g, 0.), CExp(power));
-            resB += CMul(vec2(term.b, 0.), CExp(power));
+            resR += CMul(vec2(term.x, 0.), mul);
+            resG += CMul(vec2(term.y, 0.), mul);
+            resB += CMul(vec2(term.z, 0.), mul);
         }
     }
 
@@ -55,7 +62,9 @@ void main() {
         resB /= N*M;
     }
 
-    if (u_mode != 0) outColor = vec4(length(resR), length(resG), length(resB), 1.);
-    else outColor = vec4(CPhase(resR), CPhase(resG), CPhase(resB), 1.);
+    // magn = vec4(k/N, 0.,0., 1.);
+    // phase = vec4(0.,0.,l/M, 1.);
+    magn = vec4(length(resR), length(resG), length(resB), 1.);
+    phase = vec4(CPhase(resR), CPhase(resG), CPhase(resB), 1.);
     return;
 }

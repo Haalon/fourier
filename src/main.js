@@ -37,15 +37,23 @@ function main() {
     const magnitudeCtrl = new CanvasController(elems.magnitude);
     const phaseCtrl = new CanvasController(elems.phase);
 
-    const forwardFourier = () => {
-        const arr = spaceCtrl.getArray();
-        const res = fftPixelData(arr, 512, 512);
+    const forwardFourier = async () => {
+        const { magnitude, phase } = await spaceCtrl.dft();
 
-        magnitudeCtrl.setImage(res.magnitude, 512, 512);
+        magnitudeCtrl.setImage(magnitude, 512, 512);
         magnitudeCtrl.shift(256, 256);
 
-        phaseCtrl.setImage(res.phase, 512, 512);
+        phaseCtrl.setImage(phase, 512, 512);
         phaseCtrl.shift(256, 256);
+        
+        // const arr = spaceCtrl.getArray();
+        // const res = fftPixelData(arr, 512, 512);
+
+        // magnitudeCtrl.setImage(res.magnitude, 512, 512);
+        // magnitudeCtrl.shift(256, 256);
+
+        // phaseCtrl.setImage(res.phase, 512, 512);
+        // phaseCtrl.shift(256, 256);
 
     }
 

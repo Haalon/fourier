@@ -37,6 +37,13 @@ function main() {
     const magnitudeCtrl = new CanvasController(elems.magnitude);
     const phaseCtrl = new CanvasController(elems.phase);
 
+    const reverseFourier = async () => {
+        const magn = magnitudeCtrl.shift(-256, -256, false);
+        const phase = phaseCtrl.shift(-256, -256, false);
+
+        spaceCtrl.idft(magn, phase);
+    }
+
     const forwardFourier = async () => {
         const { magnitude, phase } = await spaceCtrl.dft();
 
@@ -54,24 +61,37 @@ function main() {
 
         // phaseCtrl.setImage(res.phase, 512, 512);
         // phaseCtrl.shift(256, 256);
+        // setTimeout(() => reverseFourier(), 1000);
 
     }
+
+    
 
     spaceCtrl.drawHook = () => {
         forwardFourier();
     }
 
+    magnitudeCtrl.drawHook = () => {
+        reverseFourier();
+    }
+
+    phaseCtrl.drawHook = () => {
+        reverseFourier();
+    }
+
     elems.space_input.onchange = async () => {
         await setImage(elems.space_input, spaceCtrl);
-        spaceCtrl.sync();
         forwardFourier();
     }
 
     elems.magnitude_input.onchange = async () => {
         await setImage(elems.magnitude_input, magnitudeCtrl);
+        reverseFourier();
     }
 
     elems.phase_input.onchange = async () => {
         await setImage(elems.phase_input, phaseCtrl);
+        reverseFourier();
+       
     }
 }

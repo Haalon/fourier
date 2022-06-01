@@ -133,7 +133,7 @@ export function fftPixelData(data,w,h, dir=-1, norm=false) {
             const f_col = fft(col, dir, norm);
             temp2.push(f_col);
 
-            const colMagnMax = Math.max(...col.map(CMagn));
+            const colMagnMax = Math.max(...f_col.map(CMagn));
             if (colMagnMax > maxMagn) maxMagn = colMagnMax;
         }
         res.push(temp2)

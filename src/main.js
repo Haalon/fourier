@@ -33,7 +33,7 @@ async function setImage(input, ctrl) {
 function main() {
     const elems = getElementsWithId();
 
-    const spaceCtrl = new CanvasController(elems.space);
+    const spaceCtrl = new CanvasController(elems.space, true);
     const magnitudeCtrl = new CanvasController(elems.magnitude);
     const phaseCtrl = new CanvasController(elems.phase);
 

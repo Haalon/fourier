@@ -7,11 +7,12 @@ import bitReverseFrag from './glsl/bitReverse.frag'
 import dftFrag from './glsl/dft.frag'
 import idftFrag from './glsl/idft.frag'
 import logmapFrag from './glsl/logmap.frag'
+import unpolarmapFrag from './glsl/unpolarmap.frag'
 
 export class CanvasController {
-    constructor(canvas, drawHook) {
+    constructor(canvas, isMain=false) {
         this.canvas = canvas;
-        this.drawHook = drawHook;
+        // this.drawHook = drawHook;
         this.viewsize = new Float32Array([canvas.width, canvas.height]);
 
         var gl = canvas.getContext("webgl2");
@@ -42,6 +43,7 @@ export class CanvasController {
 
         this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
         this.program_logmap = this.igloo.program(copyVert, logmapFrag);
+        this.program_unpolarmap = this.igloo.program(copyVert, unpolarmapFrag);
 
         this.program_dft = this.igloo.program(copyVert, dftFrag);
         this.program_idft = this.igloo.program(copyVert, idftFrag);
@@ -52,8 +54,16 @@ export class CanvasController {
 
         this.tex_temp1 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
-        this.tex_temp2 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
-            .blank(this.viewsize[0], this.viewsize[1]);
+
+        if (isMain) {
+            this.tex_temp2 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+                .blank(this.viewsize[0], this.viewsize[1]);
+            this.tex_temp3 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+                .blank(this.viewsize[0], this.viewsize[1]);
+            this.tex_temp4 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+                .blank(this.viewsize[0], this.viewsize[1]);
+        }
+        
 
 
         this.show();

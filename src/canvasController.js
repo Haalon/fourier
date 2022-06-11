@@ -5,9 +5,11 @@ import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
 import bitReverseFrag from './glsl/bitReverse.frag'
 import dftFrag from './glsl/dft.frag'
+import dftAxisFrag from './glsl/dftAxis.frag'
 import idftFrag from './glsl/idft.frag'
 import logmapFrag from './glsl/logmap.frag'
 import unpolarmapFrag from './glsl/unpolarmap.frag'
+import polarmapFrag from './glsl/polarmap.frag'
 
 export class CanvasController {
     constructor(canvas, isMain=false) {
@@ -43,9 +45,11 @@ export class CanvasController {
 
         this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
         this.program_logmap = this.igloo.program(copyVert, logmapFrag);
+        this.program_polarmap = this.igloo.program(copyVert, polarmapFrag);
         this.program_unpolarmap = this.igloo.program(copyVert, unpolarmapFrag);
 
         this.program_dft = this.igloo.program(copyVert, dftFrag);
+        this.program_dft_axis = this.igloo.program(copyVert, dftAxisFrag);
         this.program_idft = this.igloo.program(copyVert, idftFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
@@ -123,11 +127,14 @@ export class CanvasController {
         this.gl.finish();
     }
 
-    getArray(texture) {
+    getArray(texture, width, height, format) {
         this.sync();
         const gl = this.gl;
+        width = width ?? this.viewsize[0];
+        height = height ?? this.viewsize[1];
+        format = format ?? gl.RGBA;
+        
         texture = texture ? texture : this.tex_main;
-        const [width, height] = this.viewsize;
 
         var framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -224,6 +231,180 @@ export class CanvasController {
             .draw(gl.TRIANGLE_STRIP, 4);
         this.show();
         return;
+    }
+
+    dft2() {
+        function arrayMax(arr) {
+            var len = arr.length, max = -Infinity;
+            while (len--) {
+              if (arr[len] > max) {
+                max = arr[len];
+              }
+            }
+            return max;
+        };
+        const gl = this.gl;
+        this.tex_temp3.blank(512, 512);
+        // run dft on one axis
+        this.frameBuffer.attach(this.tex_temp1);    // out x
+        this.frameBuffer.attach(this.tex_temp2, 1); // out y
+
+        this.tex_main.bind(0); // in x
+        this.tex_temp3.bind(1);  // no y yet
+       
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+          ]);
+
+        this.program_dft_axis.use()
+          .attrib('a_position', this.quad, 2)
+          .uniform('screenSize', this.viewsize)
+          .uniformi('u_x', 0)
+          .uniformi('u_y', 1)
+          .uniform('u_direction', -1)
+          .uniformi('u_axis', 1)
+          .uniformi('u_normalise', 0)
+          .draw(gl.TRIANGLE_STRIP, 4);
+        
+        // run dft on other axis
+        this.frameBuffer.attach(this.tex_temp3);    // out x
+        this.frameBuffer.attach(this.tex_temp4, 1); // out y
+
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+        ]);
+        this.tex_temp1.bind(0); // in x 
+        this.tex_temp2.bind(1); // in y
+
+        this.program_dft_axis.use()
+          .attrib('a_position', this.quad, 2)
+          .uniform('screenSize', this.viewsize)
+          .uniformi('u_x', 0)
+          .uniformi('u_y', 1)
+          .uniform('u_direction', -1)
+          .uniformi('u_axis', 0)
+          .uniformi('u_normalise', 0)
+          .draw(gl.TRIANGLE_STRIP, 4);
+
+        // x y to polar
+        this.frameBuffer.attach(this.tex_temp1);    // out magn
+        this.frameBuffer.attach(this.tex_temp2, 1); // out phase
+
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+        ]);
+        this.tex_temp3.bind(0); // in x 
+        this.tex_temp4.bind(1); // in y
+
+        this.program_polarmap.use()
+          .attrib('a_position', this.quad, 2)
+          .uniform('screenSize', this.viewsize)
+          .uniformi('u_x', 0)
+          .uniformi('u_y', 1)
+          .draw(gl.TRIANGLE_STRIP, 4);
+
+        // find maixmum
+        // only a 1/64th of the whole texture, because maximum is usually in the center (0,0) anyway
+        const magnSample = this.getArray(this.tex_temp1, 64 ,64, gl.RGB);
+        this.maxval = arrayMax(magnSample);
+        const phase = this.getArray(this.tex_temp2);
+
+        gl.deleteFramebuffer(this.frameBuffer.framebuffer);
+        this.frameBuffer = this.igloo.framebuffer();
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        this.frameBuffer.attach(this.tex_temp2);
+        this.tex_temp1.bind(0);
+        this.program_logmap.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('screenSize', this.viewsize)
+            .uniform('u_maxval', this.maxval)
+            .uniformi('u_texture', 0)
+            .draw(gl.TRIANGLE_STRIP, 4);
+
+        const magnitude = this.getArray(this.tex_temp2);
+
+        return {magnitude, phase};
+    }
+
+    idft2(magn, phase) {
+        const gl = this.gl;
+        this.tex_temp1.set(magn, this.viewsize[0], this.viewsize[1]);
+        this.tex_temp2.set(phase, this.viewsize[0], this.viewsize[1]);
+
+        // from magnitude and phase to x and y     
+        this.frameBuffer.attach(this.tex_temp3);
+        this.frameBuffer.attach(this.tex_temp4, 1);
+  
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+          ]);
+        this.tex_temp1.bind(0);
+        this.tex_temp2.bind(1);
+        this.program_unpolarmap.use()
+            .attrib('a_position', this.quad, 2)
+            .uniform('screenSize', this.viewsize)
+            .uniformi('u_magn', 0)
+            .uniformi('u_phase', 1)
+            .uniform('u_maxval', this.maxval)
+            .draw(gl.TRIANGLE_STRIP, 4);
+        
+
+        // run dft on one axis
+        this.frameBuffer.attach(this.tex_temp1);
+        this.frameBuffer.attach(this.tex_temp2, 1);
+
+        this.tex_temp3.bind(0); // x
+        this.tex_temp4.bind(1); // y
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+          ]);
+
+        this.program_dft_axis.use()
+          .attrib('a_position', this.quad, 2)
+          .uniform('screenSize', this.viewsize)
+          .uniformi('u_x', 0)
+          .uniformi('u_y', 1)
+          .uniform('u_direction', 1)
+          .uniformi('u_axis', 1)
+          .uniformi('u_normalise', 1)
+          .draw(gl.TRIANGLE_STRIP, 4);
+
+        // run dft on other axis
+        this.frameBuffer.attach(this.tex_main);
+        this.frameBuffer.attach(this.tex_temp4, 1);
+
+        this.tex_temp1.bind(0); // x
+        this.tex_temp2.bind(1); // y
+        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0,
+            gl.COLOR_ATTACHMENT1, 
+          ]);
+
+        this.program_dft_axis.use()
+          .attrib('a_position', this.quad, 2)
+          .uniform('screenSize', this.viewsize)
+          .uniformi('u_x', 0)
+          .uniformi('u_y', 1)
+          .uniform('u_direction', 1)
+          .uniformi('u_axis', 0)
+          .uniformi('u_normalise', 1)
+          .draw(gl.TRIANGLE_STRIP, 4);
+
+        gl.deleteFramebuffer(this.frameBuffer.framebuffer);
+        this.frameBuffer = this.igloo.framebuffer();
+        this.show();
+
     }
 
 

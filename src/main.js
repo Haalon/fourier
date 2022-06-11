@@ -41,31 +41,18 @@ function main() {
         const magn = magnitudeCtrl.shift(-256, -256, false);
         const phase = phaseCtrl.shift(-256, -256, false);
 
-        spaceCtrl.idft(magn, phase);
+        spaceCtrl.idft2(magn, phase);
     }
 
     const forwardFourier = async () => {
-        const { magnitude, phase } = await spaceCtrl.dft();
+        const { magnitude, phase } = spaceCtrl.dft2();
 
         magnitudeCtrl.setImage(magnitude, 512, 512);
         magnitudeCtrl.shift(256, 256);
 
         phaseCtrl.setImage(phase, 512, 512);
         phaseCtrl.shift(256, 256);
-        
-        // const arr = spaceCtrl.getArray();
-        // const res = fftPixelData(arr, 512, 512);
-
-        // magnitudeCtrl.setImage(res.magnitude, 512, 512);
-        // magnitudeCtrl.shift(256, 256);
-
-        // phaseCtrl.setImage(res.phase, 512, 512);
-        // phaseCtrl.shift(256, 256);
-        // setTimeout(() => reverseFourier(), 1000);
-
     }
-
-    
 
     spaceCtrl.drawHook = () => {
         forwardFourier();

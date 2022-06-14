@@ -41,11 +41,11 @@ function main() {
         const magn = magnitudeCtrl.shift(-256, -256, false);
         const phase = phaseCtrl.shift(-256, -256, false);
 
-        spaceCtrl.idft2(magn, phase);
+        spaceCtrl.idft(magn, phase);
     }
 
     const forwardFourier = async () => {
-        const { magnitude, phase } = spaceCtrl.dft2();
+        const { magnitude, phase } = spaceCtrl.dft();
 
         magnitudeCtrl.setImage(magnitude, 512, 512);
         magnitudeCtrl.shift(256, 256);

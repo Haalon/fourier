@@ -4,9 +4,9 @@ import drawFrag from './glsl/draw.frag'
 import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
 import bitReverseFrag from './glsl/bitReverse.frag'
-import dftFrag from './glsl/dft.frag'
+
 import dftAxisFrag from './glsl/dftAxis.frag'
-import idftFrag from './glsl/idft.frag'
+
 import logmapFrag from './glsl/logmap.frag'
 import unpolarmapFrag from './glsl/unpolarmap.frag'
 import polarmapFrag from './glsl/polarmap.frag'
@@ -17,7 +17,7 @@ export class CanvasController {
         // this.drawHook = drawHook;
         this.viewsize = new Float32Array([canvas.width, canvas.height]);
 
-        var gl = canvas.getContext("webgl2");
+        var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
         if (!gl) {
             throw new Error('no webgl2')
         }
@@ -48,9 +48,7 @@ export class CanvasController {
         this.program_polarmap = this.igloo.program(copyVert, polarmapFrag);
         this.program_unpolarmap = this.igloo.program(copyVert, unpolarmapFrag);
 
-        this.program_dft = this.igloo.program(copyVert, dftFrag);
         this.program_dft_axis = this.igloo.program(copyVert, dftAxisFrag);
-        this.program_idft = this.igloo.program(copyVert, idftFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
         this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
@@ -210,30 +208,7 @@ export class CanvasController {
             .draw(gl.TRIANGLE_STRIP, 4);
     }
 
-    idft(magn, phase) {
-        this.sync();
-        this.tex_temp1.set(magn, this.viewsize[0], this.viewsize[1]);
-        this.tex_temp2.set(phase, this.viewsize[0], this.viewsize[1]);
-
-        const gl = this.gl;
-        this.frameBuffer.attach(this.tex_main);
-        this.tex_temp1.bind(0);
-        this.tex_temp2.bind(1);
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        this.program_idft.use()
-            .attrib('a_position', this.quad, 2)
-            .uniform('screenSize', this.viewsize)
-            .uniformi('u_magn', 0)
-            .uniformi('u_phase', 1)
-            .uniform('u_maxval', this.maxval)
-            .uniform('u_direction', 1)
-            .uniformi('u_normalise', 1)
-            .draw(gl.TRIANGLE_STRIP, 4);
-        this.show();
-        return;
-    }
-
-    dft2() {
+    dft() {
         function arrayMax(arr) {
             var len = arr.length, max = -Infinity;
             while (len--) {
@@ -332,7 +307,7 @@ export class CanvasController {
         return {magnitude, phase};
     }
 
-    idft2(magn, phase) {
+    idft(magn, phase) {
         const gl = this.gl;
         this.tex_temp1.set(magn, this.viewsize[0], this.viewsize[1]);
         this.tex_temp2.set(phase, this.viewsize[0], this.viewsize[1]);
@@ -407,62 +382,16 @@ export class CanvasController {
 
     }
 
-
-    dft() {
-        function arrayMax(arr) {
-            var len = arr.length, max = -Infinity;
-            while (len--) {
-              if (arr[len] > max) {
-                max = arr[len];
-              }
-            }
-            return max;
-          };
-        
-        this.sync();
-        const gl = this.gl;
-        this.frameBuffer.attach(this.tex_temp1);
-        this.frameBuffer.attach(this.tex_temp2, 1);
-
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        gl.drawBuffers([
-            gl.COLOR_ATTACHMENT0,
-            gl.COLOR_ATTACHMENT1, 
-          ]);
-        this.tex_main.bind(0);
-        this.program_dft.use()
-            .attrib('a_position', this.quad, 2)
-            .uniform('screenSize', this.viewsize)
-            .uniformi('u_texture', 0)
-            .uniform('u_direction', -1)
-            .uniformi('u_normalise', 0)
-            .draw(gl.TRIANGLE_STRIP, 4);
-        
-        this.sync();
-        const phase = this.getArray(this.tex_temp2);
-        const magnTemp = this.getArray(this.tex_temp1).filter((e,i) => i % 4 !== 3);
-        this.maxval = arrayMax(magnTemp);
-
-        this.frameBuffer = this.igloo.framebuffer();
-        gl.viewport(0, 0, this.viewsize[0], this.viewsize[1]);
-        this.frameBuffer.attach(this.tex_temp2);
-        this.tex_temp1.bind(0);
-        this.program_logmap.use()
-            .attrib('a_position', this.quad, 2)
-            .uniform('screenSize', this.viewsize)
-            .uniform('u_maxval', this.maxval)
-            .uniformi('u_texture', 0)
-            .draw(gl.TRIANGLE_STRIP, 4);
-
-        const magnitude = this.getArray(this.tex_temp2);
-        
-
-        return {magnitude, phase};
-    }
-
     setImage(img, w, h) {
         this.sync();
         this.tex_main.set(img, w, h);
         this.show();
+    }
+
+    getImage() {
+        const img = new Image();
+        const url = this.canvas.toDataURL("image/png");
+        img.src = url;
+        return img;
     }
 }

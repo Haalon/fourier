@@ -1,6 +1,6 @@
 import { loadImageByFile, resizeImage } from './imageUtils.js'
 import { CanvasController } from './canvasController.js'
-import { fftPixelData } from './fft.js'
+import { CanvasContainer } from './canvasContainer.js';
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -33,9 +33,9 @@ async function setImage(input, ctrl) {
 function main() {
     const elems = getElementsWithId();
 
-    const spaceCtrl = new CanvasController(elems.space, true);
-    const magnitudeCtrl = new CanvasController(elems.magnitude);
-    const phaseCtrl = new CanvasController(elems.phase);
+    const spaceCtrl = elems.space.controller;
+    const magnitudeCtrl = elems.magnitude.controller;
+    const phaseCtrl = elems.phase.controller;
 
     const reverseFourier = async () => {
         const magn = magnitudeCtrl.shift(-256, -256, false);
@@ -54,31 +54,8 @@ function main() {
         phaseCtrl.shift(256, 256);
     }
 
-    spaceCtrl.drawHook = () => {
-        forwardFourier();
-    }
-
-    magnitudeCtrl.drawHook = () => {
-        reverseFourier();
-    }
-
-    phaseCtrl.drawHook = () => {
-        reverseFourier();
-    }
-
-    elems.space_input.onchange = async () => {
-        await setImage(elems.space_input, spaceCtrl);
-        forwardFourier();
-    }
-
-    elems.magnitude_input.onchange = async () => {
-        await setImage(elems.magnitude_input, magnitudeCtrl);
-        reverseFourier();
-    }
-
-    elems.phase_input.onchange = async () => {
-        await setImage(elems.phase_input, phaseCtrl);
-        reverseFourier();
-       
-    }
+    document.addEventListener('image-change', e => {
+        if (e.detail.main) forwardFourier();
+        else reverseFourier();
+    })
 }

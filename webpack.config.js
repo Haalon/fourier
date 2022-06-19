@@ -11,7 +11,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(vert|frag|glsl)$/i,
+        test: /\.(vert|frag|glsl|css)$/i,
         use: 'raw-loader'
       }
     ]

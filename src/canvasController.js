@@ -11,6 +11,9 @@ import logmapFrag from './glsl/logmap.frag'
 import unpolarmapFrag from './glsl/unpolarmap.frag'
 import polarmapFrag from './glsl/polarmap.frag'
 
+import matrixFrag from './glsl/matrix.frag'
+import negateFrag from './glsl/negate.frag'
+
 export class CanvasController {
     constructor(canvas, isMain=false) {
         this.canvas = canvas;
@@ -42,6 +45,9 @@ export class CanvasController {
 
         this.program_copy = this.igloo.program(copyVert, copyFrag);
         this.program_draw = this.igloo.program(copyVert, drawFrag);
+
+        this.program_matrix = this.igloo.program(copyVert, matrixFrag);
+        this.program_negate = this.igloo.program(copyVert, negateFrag);
 
         this.program_bit_reverse = this.igloo.program(copyVert, bitReverseFrag);
         this.program_logmap = this.igloo.program(copyVert, logmapFrag);
@@ -145,7 +151,7 @@ export class CanvasController {
         return data;
     }
 
-    _operation(program, args={}, intUniforms=[], inPlace=true) {
+    _operation(program, f_args={}, i_args={}, m_args={}, inPlace=true) {
         this.sync();
         const gl = this.gl;
         this.frameBuffer.attach(this.tex_temp1);
@@ -156,10 +162,14 @@ export class CanvasController {
             .uniformi('u_texture', 0)
             .uniform('screenSize', this.viewsize);
 
-        for (const [key, val] of Object.entries(args)) {
-            if (intUniforms.includes(key)) program = program.uniformi(key, val);
-            else program = program.uniform(key, val);
-        }
+        for (const [key, val] of Object.entries(f_args)) 
+            program = program.uniform(key, val);
+
+        for (const [key, val] of Object.entries(i_args)) 
+            program = program.uniformi(key, val);
+
+        for (const [key, val] of Object.entries(m_args)) 
+            program = program.matrix(key, val);
 
         program.draw(gl.TRIANGLE_STRIP, 4);
         
@@ -181,17 +191,52 @@ export class CanvasController {
             u_end: to,
             u_col: col,
             u_rad: rad-1,
-            u_mode: mode
-        }, ['u_mode'], inPlace);
+        }, {u_mode: mode}, {}, inPlace);
     }
 
     shift(dx, dy, inPlace=true) {
         const u_offset = new Float32Array([dx, dy]);
-        return this._operation(this.program_copy, {u_offset}, [], inPlace);
+        return this._operation(this.program_copy, {u_offset}, {}, {}, inPlace);
     }
 
     bitReverse(inPlace=true) {
-        return this._operation(this.program_bit_reverse, {}, [], inPlace);
+        return this._operation(this.program_bit_reverse, {}, {}, {}, inPlace);
+    }
+
+    flipY(inPlace=true) {
+        const u_matrix = [
+            1, 0,
+            0, -1
+        ];
+        return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
+    }
+
+    flipX(inPlace=true) {
+        const u_matrix = [
+            -1, 0,
+            0, 1
+        ];
+        return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
+    }
+
+    rotateLeft(inPlace=true) {
+        const u_matrix = [
+            0, -1,
+            1, 0
+        ];
+        return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
+    }
+
+    rotateRight(inPlace=true) {
+        const u_matrix = [
+            0, 1,
+            -1, 0
+        ];
+        return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
+    }
+
+    negate(inPlace=true) {
+        return this._operation(this.program_negate, {}, {}, {}, inPlace);
     }
 
     show() {

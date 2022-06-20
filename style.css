@@ -24,6 +24,10 @@ html, body {
     flex-direction: column;
 }
 
+.justify-center {
+    justify-content: center;
+}
+
 .flex-grow-1 {
     flex-grow: 1;
 }

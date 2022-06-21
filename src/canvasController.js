@@ -22,14 +22,12 @@ export class CanvasController {
 
         var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
         if (!gl) {
-            throw new Error('no webgl2')
+            alert('Your device does not support webgl2')
+            throw new Error('no webgl2');
         }
 
         this.gl = gl
-        // const floattext = gl.getExtension('OES_texture_float');
-        // if (!floattext) {
-        //     alert('no floating textures')
-        // }
+
         const ext = gl.getExtension("EXT_color_buffer_float");
         if (!ext) {
             alert("need EXT_color_buffer_float");

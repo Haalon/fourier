@@ -1,4 +1,3 @@
-import { loadImageByFile, resizeImage } from './imageUtils.js'
 import { CanvasController } from './canvasController.js'
 import { CanvasContainer } from './canvasContainer.js';
 
@@ -19,15 +18,6 @@ function getElementsWithId() {
 
 
     return res;
-}
-
-async function setImage(input, ctrl) {
-
-    const file = input.files[0];
-    let img = await loadImageByFile(file);
-    img = await resizeImage(img, 512, 512);
-
-    ctrl.setImage(img);
 }
 
 function main() {

@@ -1,5 +1,8 @@
 import { CanvasController } from './canvasController.js'
 import { CanvasContainer } from './canvasContainer.js';
+import { loadImageByUrl } from './imageUtils.js';
+
+const IMG_NUM=10;
 
 if (document.readyState === "complete" ||
     (document.readyState !== "loading" && !document.documentElement.doScroll)) {
@@ -20,8 +23,14 @@ function getElementsWithId() {
     return res;
 }
 
-function main() {
+function getRandomInt (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function main() {
     const elems = getElementsWithId();
+
+    
 
     const spaceCtrl = elems.space.controller;
     const magnitudeCtrl = elems.magnitude.controller;
@@ -43,9 +52,16 @@ function main() {
         phaseCtrl.setImage(phase, 512, 512);
         phaseCtrl.shift(256, 256);
     }
+    
 
     document.addEventListener('image-change', e => {
         if (e.detail.main) forwardFourier();
         else reverseFourier();
-    })
+    });
+
+    const num = getRandomInt(0, IMG_NUM);
+    const img = await loadImageByUrl(`src/static/${num}.jpg`);
+    elems.space._setImage(img);
+    // forwardFourier();
+
 }

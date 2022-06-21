@@ -82,9 +82,11 @@ export class CanvasContainer extends HTMLElement {
         document.body.removeChild(link);
     }
 
-    async _setImage() {
+    async _setImage(img) {
         const file = this.fileInput.files[0];
-        let img = await loadImageByFile(file);
+        if (!img)
+            img = await loadImageByFile(file);
+
         img = await resizeImage(img, 512, 512);
     
         this.controller.setImage(img);

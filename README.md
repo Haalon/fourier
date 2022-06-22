@@ -1,4 +1,4 @@
-# [Fourier](http://haalon.com/fourier)
+# [Fourier](https://haalon.com/fourier)
 
 Interactive Discrete Fourier playground, that runs on your GPU
 

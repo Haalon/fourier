@@ -4,6 +4,22 @@ html, body {
     margin: 0;
 }
 
+#header {
+    font-size: 48px;
+    font-family: Arial;
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+#footer {
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+#header, #footer, #body {
+    border: 1px grey solid;
+}
+
 * {
     box-sizing: border-box;
 }

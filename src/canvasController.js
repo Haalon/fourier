@@ -1,5 +1,7 @@
 import { Igloo } from './igloo.js'
 
+import { brushSettings } from './brushSettings.js'
+
 import drawFrag from './glsl/draw.frag'
 import copyFrag from './glsl/copy.frag'
 import copyVert from './glsl/copy.vert'
@@ -95,13 +97,14 @@ export class CanvasController {
         this.start_pos = null
         this.canvas.addEventListener('mousedown', e => {
             e.stopPropagation();
-            this.start_pos = this._getMousePos(e)
+            this.start_pos = this._getMousePos(e);
+            this.draw(this.start_pos, this.start_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
         })
         this.canvas.addEventListener('mousemove', e => {
             e.stopPropagation();
             if (!this.start_pos) return;
             const end_pos = this._getMousePos(e);
-            this.draw(this.start_pos, end_pos);
+            this.draw(this.start_pos, end_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
             this.start_pos = end_pos;
         })
         this.canvas.addEventListener('mouseup', e => {
@@ -182,7 +185,9 @@ export class CanvasController {
     draw(from, to, col=null, rad=5, mode=2, inPlace=true) {
         from = new Float32Array(from);
         to = new Float32Array(to);
+
         col = col ? new Float32Array(col) : new Float32Array([0,0,0,1]);
+        col = col.length == 3 ? new Float32Array([...col ,1]) : col;
 
         return this._operation(this.program_draw, {
             u_org: from,

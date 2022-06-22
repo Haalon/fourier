@@ -1,4 +1,5 @@
 import { CanvasController } from './canvasController.js'
+import { BrushMenu } from './brushMenu.js';
 import { CanvasContainer } from './canvasContainer.js';
 import { loadImageByUrl } from './imageUtils.js';
 

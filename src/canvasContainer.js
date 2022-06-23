@@ -13,6 +13,9 @@ import left from './icons/left.svg'
 import right from './icons/right.svg'
 import down from './icons/down.svg'
 
+import zoomIn from './icons/zoom-in.svg'
+import zoomOut from './icons/zoom-out.svg'
+
 export class CanvasContainer extends HTMLElement {
     get css() {
         return commonCSS + /*css*/`
@@ -42,7 +45,11 @@ export class CanvasContainer extends HTMLElement {
                 <button title="Flip y" id="flip-y-btn">${flipY}</button>
                 <button title="Down" id="down-btn">${down}</button>
                 <button title="Up" id="up-btn">${up}</button>
+
+                <button title="Zoom In" id="zoom-in-btn">${zoomIn}</button>
                 <button title="Negate" id="negate-btn">${negate}</button>
+                <button title="Zoom Out" id="zoom-out-btn">${zoomOut}</button>
+
                 <button title="Left" id="left-btn">${left}</button>
                 <button title="Right" id="right-btn">${right}</button>
                 <button title="Rotate left" id="rot-l-btn">${rotLeft}</button>
@@ -150,6 +157,7 @@ export class CanvasContainer extends HTMLElement {
             this.notifyImageChange();
         };
 
+        // translation
         elems['up-btn'].onclick = () => { 
             this.controller.shift(0, -128);
             this.notifyImageChange();
@@ -167,6 +175,17 @@ export class CanvasContainer extends HTMLElement {
 
         elems['right-btn'].onclick = () => { 
             this.controller.shift(-128, 0);
+            this.notifyImageChange();
+        };
+
+        // zoom
+        elems['zoom-in-btn'].onclick = () => { 
+            this.controller.zoom(0.5);
+            this.notifyImageChange();
+        };
+
+        elems['zoom-out-btn'].onclick = () => { 
+            this.controller.zoom(2);
             this.notifyImageChange();
         };
 

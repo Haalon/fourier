@@ -238,6 +238,14 @@ export class CanvasController {
         return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
     }
 
+    zoom(scale, inPlace=true) {
+        const u_matrix = [
+            scale, 0,
+            0, scale
+        ];
+        return this._operation(this.program_matrix, {}, {}, {u_matrix}, inPlace);
+    }
+
     negate(inPlace=true) {
         return this._operation(this.program_negate, {}, {}, {}, inPlace);
     }

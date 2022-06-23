@@ -8,6 +8,11 @@ import rotRight from './icons/rotate-right.svg'
 import rotLeft from './icons/rotate-left.svg'
 import negate from './icons/negate.svg'
 
+import up from './icons/up.svg'
+import left from './icons/left.svg'
+import right from './icons/right.svg'
+import down from './icons/down.svg'
+
 export class CanvasContainer extends HTMLElement {
     get css() {
         return commonCSS + /*css*/`
@@ -35,7 +40,11 @@ export class CanvasContainer extends HTMLElement {
             <div class="row justify-center">
                 <button title="Flip x" id="flip-x-btn">${flipX}</button>
                 <button title="Flip y" id="flip-y-btn">${flipY}</button>
+                <button title="Down" id="down-btn">${down}</button>
+                <button title="Up" id="up-btn">${up}</button>
                 <button title="Negate" id="negate-btn">${negate}</button>
+                <button title="Left" id="left-btn">${left}</button>
+                <button title="Right" id="right-btn">${right}</button>
                 <button title="Rotate left" id="rot-l-btn">${rotLeft}</button>
                 <button title="Rotate right" id="rot-r-btn">${rotRight}</button>      
             </div>
@@ -138,6 +147,26 @@ export class CanvasContainer extends HTMLElement {
 
         elems['negate-btn'].onclick = () => { 
             this.controller.negate();
+            this.notifyImageChange();
+        };
+
+        elems['up-btn'].onclick = () => { 
+            this.controller.shift(0, -128);
+            this.notifyImageChange();
+        };
+
+        elems['down-btn'].onclick = () => { 
+            this.controller.shift(0, 128);
+            this.notifyImageChange();
+        };
+
+        elems['left-btn'].onclick = () => { 
+            this.controller.shift(128, 0);
+            this.notifyImageChange();
+        };
+
+        elems['right-btn'].onclick = () => { 
+            this.controller.shift(-128, 0);
             this.notifyImageChange();
         };
 

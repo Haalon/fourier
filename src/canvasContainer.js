@@ -62,6 +62,7 @@ export class CanvasContainer extends HTMLElement {
 
             <div class="row justify-center">
                 <button id="save-btn">Save</button>
+                <button id="reset-btn">Reset to last loaded</button>
                 <input type="file" id="file-input" accept="image/*">  
             </div>
         </div>
@@ -104,6 +105,8 @@ export class CanvasContainer extends HTMLElement {
             img = await loadImageByFile(file);
 
         img = await resizeImage(img, 512, 512);
+
+        this.previousImg = img;
     
         this.controller.setImage(img);
         this.notifyImageChange();
@@ -133,6 +136,12 @@ export class CanvasContainer extends HTMLElement {
 
         elems['file-input'].onchange = () => this._setImage();
         elems['save-btn'].onclick = () => this._saveImage();
+        elems['reset-btn'].onclick = () => {
+            if (!this.previousImg) return;
+            this.controller.setImage(this.previousImg);
+            this.notifyImageChange();
+        }
+
 
         elems['flip-x-btn'].onclick = () => { 
             this.controller.flipX();

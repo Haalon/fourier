@@ -4,13 +4,14 @@ import { CanvasController } from './canvasController.js'
 import { BrushMenu } from './brushMenu.js';
 import { CanvasContainer } from './canvasContainer.js';
 import { loadImageByUrl } from '../imageUtils.js';
+import { BaseComponent } from '../baseComponent';
 
 const IMG_NUM=10;
 function getRandomInt (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export class MainApp extends HTMLElement {
+export class MainApp extends BaseComponent {
 
     get css() {
         return commonCSS + /*css*/`
@@ -36,25 +37,6 @@ export class MainApp extends HTMLElement {
             </div>
         </div>
         `;
-    }
-
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open'});
-        this.shadowRoot.innerHTML = `<style>${this.css}</style>` + this.html;
-        this.elems = this.getElementsWithId();
-    }
-
-    getElementsWithId() {
-
-        const res = {}
-        const elems = this.shadowRoot.querySelectorAll('[id]')
-    
-        for (const el of elems)
-            res[el.id] = el
-    
-    
-        return res;
     }
 
     async connectedCallback() {

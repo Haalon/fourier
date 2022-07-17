@@ -15,8 +15,9 @@ import down from '../icons/down.svg'
 
 import zoomIn from '../icons/zoom-in.svg'
 import zoomOut from '../icons/zoom-out.svg'
+import { BaseComponent } from '../baseComponent.js';
 
-export class CanvasContainer extends HTMLElement {
+export class CanvasContainer extends BaseComponent {
     get css() {
         return commonCSS + /*css*/`
             canvas {
@@ -69,12 +70,6 @@ export class CanvasContainer extends HTMLElement {
         `;
     }
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open'});
-        this.shadowRoot.innerHTML = `<style>${this.css}</style>` + this.html;
-    }
-
     notifyImageChange() {
         const event = new CustomEvent('image-change', {detail: {main: this.isMain}});
 
@@ -112,25 +107,13 @@ export class CanvasContainer extends HTMLElement {
         this.notifyImageChange();
     }
 
-    getElementsWithId() {
-
-        const res = {}
-        const elems = this.shadowRoot.querySelectorAll('[id]')
-    
-        for (const el of elems)
-            res[el.id] = el
-    
-    
-        return res;
-    }
-
     connectedCallback() {
         this.canvas = this.shadowRoot.querySelector('canvas');
         this.isMain = this.hasAttribute('is-main');
         this.controller = new CanvasController(this.canvas, this.isMain);
         this.controller.drawHook = () => this.notifyImageChange();
 
-        const elems = this.getElementsWithId();
+        const elems = this.elems;
         this.fileInput = elems['file-input'];
         elems['title'].innerHTML = this.getAttribute('title');
 

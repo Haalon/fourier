@@ -1,8 +1,9 @@
 import { brushSettings } from '../brushSettings.js';
 
 import commonCSS from '../../style.css';
+import { BaseComponent } from '../baseComponent.js';
 
-export class BrushMenu extends HTMLElement {
+export class BrushMenu extends BaseComponent {
     get css() {
         return commonCSS + /*css*/`
             canvas {
@@ -44,24 +45,6 @@ export class BrushMenu extends HTMLElement {
         `;
     }
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open'});
-        this.shadowRoot.innerHTML = `<style>${this.css}</style>` + this.html;
-    }
-
-    getElementsWithId() {
-
-        const res = {}
-        const elems = this.shadowRoot.querySelectorAll('[id]')
-    
-        for (const el of elems)
-            res[el.id] = el
-    
-    
-        return res;
-    }
-
     _selectMode(mode) {
         for (const i of [0,1,2]) {
             this.elems[`mode${i}`].removeAttribute('selected');
@@ -72,8 +55,7 @@ export class BrushMenu extends HTMLElement {
     }
 
     connectedCallback() {
-        // super.connectedCallback();
-        const elems = this.elems = this.getElementsWithId();
+        const elems = this.elems;
 
         elems.color.addEventListener("input", (e) => {
             const color = e.target.value;

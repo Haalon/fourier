@@ -1,20 +1,20 @@
-import { Igloo } from './igloo.js'
+import { Igloo } from '../igloo.js'
 
-import { brushSettings } from './brushSettings.js'
+import { brushSettings } from '../brushSettings.js'
 
-import drawFrag from './glsl/draw.frag'
-import copyFrag from './glsl/copy.frag'
-import copyVert from './glsl/copy.vert'
-import bitReverseFrag from './glsl/bitReverse.frag'
+import drawFrag from '../glsl/draw.frag'
+import copyFrag from '../glsl/copy.frag'
+import copyVert from '../glsl/copy.vert'
+import bitReverseFrag from '../glsl/bitReverse.frag'
 
-import dftAxisFrag from './glsl/dftAxis.frag'
+import dftAxisFrag from '../glsl/dftAxis.frag'
 
-import logmapFrag from './glsl/logmap.frag'
-import unpolarmapFrag from './glsl/unpolarmap.frag'
-import polarmapFrag from './glsl/polarmap.frag'
+import logmapFrag from '../glsl/logmap.frag'
+import unpolarmapFrag from '../glsl/unpolarmap.frag'
+import polarmapFrag from '../glsl/polarmap.frag'
 
-import matrixFrag from './glsl/matrix.frag'
-import negateFrag from './glsl/negate.frag'
+import matrixFrag from '../glsl/matrix.frag'
+import negateFrag from '../glsl/negate.frag'
 
 export class CanvasController {
     constructor(canvas, isMain=false) {
@@ -36,6 +36,7 @@ export class CanvasController {
             return;
         }
         gl.getExtension('WEBGL_color_buffer_float');
+        gl.getExtension('OES_texture_float_linear')
         
         // do not flips images when used as input data for setImage
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -57,18 +58,18 @@ export class CanvasController {
         this.program_dft_axis = this.igloo.program(copyVert, dftAxisFrag);
 
         this.frameBuffer = this.igloo.framebuffer();
-        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+        this.tex_main = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.LINEAR, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
 
-        this.tex_temp1 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+        this.tex_temp1 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.LINEAR, gl.FLOAT, gl.RGBA32F)
             .blank(this.viewsize[0], this.viewsize[1]);
 
         if (isMain) {
-            this.tex_temp2 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+            this.tex_temp2 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.LINEAR, gl.FLOAT, gl.RGBA32F)
                 .blank(this.viewsize[0], this.viewsize[1]);
-            this.tex_temp3 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+            this.tex_temp3 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.LINEAR, gl.FLOAT, gl.RGBA32F)
                 .blank(this.viewsize[0], this.viewsize[1]);
-            this.tex_temp4 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.NEAREST, gl.FLOAT, gl.RGBA32F)
+            this.tex_temp4 = this.igloo.texture(null, gl.RGBA, gl.REPEAT, gl.LINEAR, gl.FLOAT, gl.RGBA32F)
                 .blank(this.viewsize[0], this.viewsize[1]);
         }
         

@@ -1,6 +1,6 @@
-import { brushSettings } from './brushSettings.js';
+import { brushSettings } from '../brushSettings.js';
 
-import commonCSS from '../style.css';
+import commonCSS from '../../style.css';
 
 export class BrushMenu extends HTMLElement {
     get css() {

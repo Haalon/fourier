@@ -1,20 +1,20 @@
 import {CanvasController} from './canvasController.js'
-import { loadImageByFile, resizeImage } from './imageUtils.js'
-import commonCSS from '../style.css';
+import { loadImageByFile, resizeImage } from '../imageUtils.js'
+import commonCSS from '../../style.css';
 // icons
-import flipX from './icons/flip-x.svg'
-import flipY from './icons/flip-y.svg'
-import rotRight from './icons/rotate-right.svg'
-import rotLeft from './icons/rotate-left.svg'
-import negate from './icons/negate.svg'
+import flipX from '../icons/flip-x.svg'
+import flipY from '../icons/flip-y.svg'
+import rotRight from '../icons/rotate-right.svg'
+import rotLeft from '../icons/rotate-left.svg'
+import negate from '../icons/negate.svg'
 
-import up from './icons/up.svg'
-import left from './icons/left.svg'
-import right from './icons/right.svg'
-import down from './icons/down.svg'
+import up from '../icons/up.svg'
+import left from '../icons/left.svg'
+import right from '../icons/right.svg'
+import down from '../icons/down.svg'
 
-import zoomIn from './icons/zoom-in.svg'
-import zoomOut from './icons/zoom-out.svg'
+import zoomIn from '../icons/zoom-in.svg'
+import zoomOut from '../icons/zoom-out.svg'
 
 export class CanvasContainer extends HTMLElement {
     get css() {

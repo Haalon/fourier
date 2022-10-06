@@ -106,7 +106,7 @@ export class CanvasContainer extends BaseComponent {
         if (!img)
             img = await loadImageByFile(file);
 
-        img = await resizeImage(img, 512, 512);
+        img = await resizeImage(img, this.controller.dimension, this.controller.dimension);
 
         this.previousImg = img;
     
@@ -156,24 +156,25 @@ export class CanvasContainer extends BaseComponent {
             this.notifyImageChange();
         };
 
+        const quarterDim = this.dimension / 4;
         // translation
         elems['up-btn'].onclick = () => { 
-            this.controller.shift(0, -128);
+            this.controller.shift(0, -quarterDim);
             this.notifyImageChange();
         };
 
         elems['down-btn'].onclick = () => { 
-            this.controller.shift(0, 128);
+            this.controller.shift(0, quarterDim);
             this.notifyImageChange();
         };
 
         elems['left-btn'].onclick = () => { 
-            this.controller.shift(128, 0);
+            this.controller.shift(quarterDim, 0);
             this.notifyImageChange();
         };
 
         elems['right-btn'].onclick = () => { 
-            this.controller.shift(-128, 0);
+            this.controller.shift(-quarterDim, 0);
             this.notifyImageChange();
         };
 

@@ -19,9 +19,17 @@ import negateFrag from '../glsl/negate.frag'
 export class CanvasController {
     constructor(canvas, isMain=false) {
         this.canvas = canvas;
-        // this.drawHook = drawHook;
+        // set canvas size
+        // currently size does not change dynamically 
+        // but is only calculated during init
+        this.dimension = Math.min(Math.round(window.innerWidth/3.2), 512);
+
+        this.canvas.width = this.dimension;
+        this.canvas.height = this.dimension;
+
         this.viewsize = new Float32Array([canvas.width, canvas.height]);
 
+        // preserveDrawingBuffer allows us to take screenshots
         var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
         if (!gl) {
             alert('Your device does not support webgl2')
@@ -276,7 +284,7 @@ export class CanvasController {
             return max;
         };
         const gl = this.gl;
-        this.tex_temp3.blank(512, 512);
+        this.tex_temp3.blank(this.dimension, this.dimension);
         // run dft on one axis
         this.frameBuffer.attach(this.tex_temp1);    // out x
         this.frameBuffer.attach(this.tex_temp2, 1); // out y
@@ -343,7 +351,7 @@ export class CanvasController {
 
         // find maixmum
         // only a 1/64th of the whole texture, because maximum is usually in the center (0,0) anyway
-        const magnSample = this.getArray(this.tex_temp1, 64 ,64, gl.RGB);
+        const magnSample = this.getArray(this.tex_temp1, this.dimension/8,this.dimension/8, gl.RGB);
         this.maxval = arrayMax(magnSample);
         const phase = this.getArray(this.tex_temp2);
 
@@ -439,9 +447,9 @@ export class CanvasController {
 
     }
 
-    setImage(img, w, h) {
+    setImage(img) {
         this.sync();
-        this.tex_main.set(img, w, h);
+        this.tex_main.set(img, this.dimension, this.dimension);
         this.show();
     }
 

@@ -48,20 +48,22 @@ export class MainApp extends BaseComponent {
         const phaseCtrl = elems.phase.controller;
 
         const reverseFourier = async () => {
-            const magn = magnitudeCtrl.shift(-256, -256, false);
-            const phase = phaseCtrl.shift(-256, -256, false);
+            const halfDim = magnitudeCtrl.dimension / 2;
+            const magn = magnitudeCtrl.shift(-halfDim, -halfDim, false);
+            const phase = phaseCtrl.shift(-halfDim, -halfDim, false);
 
             spaceCtrl.idft(magn, phase);
         }
 
         const forwardFourier = async () => {
             const { magnitude, phase } = spaceCtrl.dft();
+            const halfDim = magnitudeCtrl.dimension / 2;
 
-            magnitudeCtrl.setImage(magnitude, 512, 512);
-            magnitudeCtrl.shift(256, 256);
+            magnitudeCtrl.setImage(magnitude);
+            magnitudeCtrl.shift(halfDim, halfDim);
 
-            phaseCtrl.setImage(phase, 512, 512);
-            phaseCtrl.shift(256, 256);
+            phaseCtrl.setImage(phase);
+            phaseCtrl.shift(halfDim, halfDim);
         }
         
 

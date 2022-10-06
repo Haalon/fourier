@@ -32,6 +32,13 @@ export class CanvasContainer extends BaseComponent {
                 font-size: 24px;
                 font-family: Arial;
             }
+
+            .controls button {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+
+            svg {width: 100%; height: auto;}
         `;
     }
     get html() {
@@ -41,7 +48,7 @@ export class CanvasContainer extends BaseComponent {
                 <span id="title"></span>
             </div>
 
-            <div class="row justify-center">
+            <div class="row justify-center controls">
                 <button title="Flip x" id="flip-x-btn">${flipX}</button>
                 <button title="Flip y" id="flip-y-btn">${flipY}</button>
                 <button title="Down" id="down-btn">${down}</button>
@@ -57,8 +64,8 @@ export class CanvasContainer extends BaseComponent {
                 <button title="Rotate right" id="rot-r-btn">${rotRight}</button>      
             </div>
 
-            <div class="flex-grow-1">
-                <canvas width="512" height="512"></canvas>
+            <div class="flex-grow-1 column justify-center">
+                <canvas></canvas>
             </div>
 
             <div class="row justify-center">

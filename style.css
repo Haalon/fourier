@@ -24,6 +24,10 @@ html, body {
     box-sizing: border-box;
 }
 
+input::file-selector-button {
+    height: 100%;
+}
+
 .container {
     height: 100%;
     /* width: 100%; */
@@ -46,6 +50,10 @@ html, body {
 
 .flex-grow-1 {
     flex-grow: 1;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
 }
 
 .absolute {

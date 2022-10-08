@@ -17,17 +17,25 @@ import matrixFrag from '../glsl/matrix.frag'
 import negateFrag from '../glsl/negate.frag'
 
 export class CanvasController {
+    resizeCanvas() {
+        var rect = this.canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio;
+        this.dimension = Math.round((rect.bottom - rect.top) * dpr);
+        this.canvas.width = this.dimension;
+        this.canvas.height = this.dimension;
+
+        this.viewsize = new Float32Array([this.canvas.width, this.canvas.height]);
+
+    }
+
     constructor(canvas, isMain=false) {
         this.canvas = canvas;
         // set canvas size
         // currently size does not change dynamically 
         // but is only calculated during init
-        this.dimension = Math.min(Math.round(window.innerWidth/3.2), 512);
+        this.resizeCanvas();
 
-        this.canvas.width = this.dimension;
-        this.canvas.height = this.dimension;
-
-        this.viewsize = new Float32Array([canvas.width, canvas.height]);
+       
 
         // preserveDrawingBuffer allows us to take screenshots
         var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
@@ -96,9 +104,11 @@ export class CanvasController {
 
     _getMousePos(event) {
         var rect = this.canvas.getBoundingClientRect();
+        const height = rect.bottom - rect.top;
+        const resolutionCoeff = this.canvas.height / height;
         return [
-            (event.pageX - rect.left),
-            (this.canvas.height - (event.pageY - rect.top)),
+            (event.pageX - rect.left) * resolutionCoeff,
+            (height - (event.pageY - rect.top)) * resolutionCoeff,
         ];
     };
 
@@ -351,7 +361,7 @@ export class CanvasController {
 
         // find maixmum
         // only a 1/64th of the whole texture, because maximum is usually in the center (0,0) anyway
-        const magnSample = this.getArray(this.tex_temp1, this.dimension/8,this.dimension/8, gl.RGB);
+        const magnSample = this.getArray(this.tex_temp1, Math.floor(this.dimension/8), Math.floor(this.dimension/8), gl.RGB);
         this.maxval = arrayMax(magnSample);
         const phase = this.getArray(this.tex_temp2);
 

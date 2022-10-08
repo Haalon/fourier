@@ -156,7 +156,7 @@ export class CanvasContainer extends BaseComponent {
             this.notifyImageChange();
         };
 
-        const quarterDim = this.dimension / 4;
+        const quarterDim = Math.floor(this.controller.dimension / 4);
         // translation
         elems['up-btn'].onclick = () => { 
             this.controller.shift(0, -quarterDim);

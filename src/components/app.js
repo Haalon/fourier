@@ -26,7 +26,7 @@ export class MainApp extends BaseComponent {
             <div id="header" class="row justify-center">
                 <span>Discrete Fourier transform of an image</span>
             </div>
-            <div id="body" class="row  justify-center flex-grow-1">
+            <div id="body" class="row  justify-center flex-grow-1 flex-wrap">
                 <canvas-container title="Magnitude" id="magnitude"></canvas-container>
                 <canvas-container title="Original" id="space" is-main></canvas-container>
                 <canvas-container title="Phase" id="phase"></canvas-container>
@@ -48,7 +48,7 @@ export class MainApp extends BaseComponent {
         const phaseCtrl = elems.phase.controller;
 
         const reverseFourier = async () => {
-            const halfDim = magnitudeCtrl.dimension / 2;
+            const halfDim = Math.floor(magnitudeCtrl.dimension / 2);
             const magn = magnitudeCtrl.shift(-halfDim, -halfDim, false);
             const phase = phaseCtrl.shift(-halfDim, -halfDim, false);
 
@@ -57,7 +57,7 @@ export class MainApp extends BaseComponent {
 
         const forwardFourier = async () => {
             const { magnitude, phase } = spaceCtrl.dft();
-            const halfDim = magnitudeCtrl.dimension / 2;
+            const halfDim = Math.floor(magnitudeCtrl.dimension / 2);
 
             magnitudeCtrl.setImage(magnitude);
             magnitudeCtrl.shift(halfDim, halfDim);

@@ -20,8 +20,15 @@ import { BaseComponent } from '../baseComponent.js';
 export class CanvasContainer extends BaseComponent {
     get css() {
         return commonCSS + /*css*/`
+            :host {
+                flex: 1;
+            }
+
             canvas {
                 border: 1px grey solid;
+                width: 100%;
+                height: 100%;
+                display: block;
             }
 
             input[type=file] {

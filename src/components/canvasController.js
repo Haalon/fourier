@@ -17,25 +17,16 @@ import matrixFrag from '../glsl/matrix.frag'
 import negateFrag from '../glsl/negate.frag'
 
 export class CanvasController {
-    resizeCanvas() {
-        var rect = this.canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio;
-        this.dimension = Math.round((rect.bottom - rect.top) * dpr);
+    constructor(canvas, isMain=false) {
+        this.canvas = canvas;
+        // set canvas size
+        // currently size does not change
+        // and does not depend on the screen size 
+        this.dimension = 512;
         this.canvas.width = this.dimension;
         this.canvas.height = this.dimension;
 
         this.viewsize = new Float32Array([this.canvas.width, this.canvas.height]);
-
-    }
-
-    constructor(canvas, isMain=false) {
-        this.canvas = canvas;
-        // set canvas size
-        // currently size does not change dynamically 
-        // but is only calculated during init
-        this.resizeCanvas();
-
-       
 
         // preserveDrawingBuffer allows us to take screenshots
         var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
@@ -52,7 +43,7 @@ export class CanvasController {
             return;
         }
         gl.getExtension('WEBGL_color_buffer_float');
-        gl.getExtension('OES_texture_float_linear')
+        gl.getExtension('OES_texture_float_linear');
         
         // do not flips images when used as input data for setImage
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

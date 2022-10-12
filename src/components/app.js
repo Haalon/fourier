@@ -15,7 +15,7 @@ export class MainApp extends BaseComponent {
 
     get css() {
         return commonCSS + /*css*/`
-            
+
         `;
     }
 
@@ -26,7 +26,7 @@ export class MainApp extends BaseComponent {
             <div id="header" class="row justify-center">
                 <span>Discrete Fourier transform of an image</span>
             </div>
-            <div id="body" class="row  justify-center flex-grow-1 flex-wrap">
+            <div id="body" class="row justify-center flex-grow-1 flex-wrap">
                 <canvas-container title="Magnitude" id="magnitude"></canvas-container>
                 <canvas-container title="Original" id="space" is-main></canvas-container>
                 <canvas-container title="Phase" id="phase"></canvas-container>

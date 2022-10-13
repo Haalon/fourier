@@ -16,7 +16,7 @@ html, body {
     padding-bottom: 24px;
 }
 
-#header, #footer, #body {
+#header, #body {
     border: 1px grey solid;
 }
 

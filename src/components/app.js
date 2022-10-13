@@ -15,7 +15,9 @@ export class MainApp extends BaseComponent {
 
     get css() {
         return commonCSS + /*css*/`
-
+            .container {
+                padding-bottom: 3rem;
+            }
         `;
     }
 

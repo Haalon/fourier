@@ -114,7 +114,6 @@ export class CanvasController {
     _addEvents() {
         this.start_pos = null
         const startHandler = e => {
-            e.preventDefault();
             e.stopPropagation();
 
             // in case we want pointerleave have same behaviour with mouse and touch

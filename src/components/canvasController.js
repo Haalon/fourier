@@ -110,6 +110,7 @@ export class CanvasController {
     _addEvents() {
         this.start_pos = null
         const startHandler = e => {
+            e.preventDefault();
             e.stopPropagation();
             this.start_pos = this._getMousePos(e);
             this.draw(this.start_pos, this.start_pos, brushSettings.color, brushSettings.size, brushSettings.mode);

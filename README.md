@@ -7,3 +7,4 @@ Interactive Discrete Fourier playground, that runs on your GPU
 * Draw on the original or magnitude\phase image, and see the effects
 * Rotate/mirror/negate/translate/scale original or magnitude\phase image, and see the effects
 * Save any of the resulting images
+* Mobile support

@@ -37,13 +37,17 @@ export class CanvasController {
 
         this.gl = gl
 
-        const ext = gl.getExtension("EXT_color_buffer_float");
+        let ext = gl.getExtension("EXT_color_buffer_float");
         if (!ext) {
             alert("need EXT_color_buffer_float");
             return;
         }
-        gl.getExtension('WEBGL_color_buffer_float');
-        gl.getExtension('OES_texture_float_linear');
+
+        ext = gl.getExtension('OES_texture_float_linear');
+        if (!ext) {
+            alert("need WEBGL_color_buffer_float extension");
+            return;
+        }
         
         // do not flips images when used as input data for setImage
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

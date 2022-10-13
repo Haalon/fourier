@@ -29,6 +29,7 @@ export class CanvasContainer extends BaseComponent {
                 width: 100%;
                 height: 100%;
                 display: block;
+                touch-action: none;
             }
 
             input[type=file] {

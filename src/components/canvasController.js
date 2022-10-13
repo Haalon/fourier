@@ -116,11 +116,17 @@ export class CanvasController {
         const startHandler = e => {
             e.preventDefault();
             e.stopPropagation();
+
+            // in case we want pointerleave have same behaviour with mouse and touch
+            // otherwise it is not fired when touch leaves the canvas
+            // if (e.target.hasPointerCapture(e.pointerId)) {
+            //     e.target.releasePointerCapture(e.pointerId);
+            // }
+
             this.start_pos = this._getMousePos(e);
             this.draw(this.start_pos, this.start_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
         }
-        this.canvas.addEventListener('mousedown', startHandler)
-        this.canvas.addEventListener('touchstart', startHandler)
+        this.canvas.addEventListener('pointerdown', startHandler)
 
         const moveHandler = e => {
             e.stopPropagation();
@@ -129,11 +135,11 @@ export class CanvasController {
             this.draw(this.start_pos, end_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
             this.start_pos = end_pos;
         }
-        this.canvas.addEventListener('mousemove', moveHandler)
-        this.canvas.addEventListener('touchmove', moveHandler)
+        this.canvas.addEventListener('pointermove', moveHandler)
 
         const endHandler = e => {
             e.stopPropagation();
+            if (!this.start_pos) return;
             
             if (this.drawHook && this.start_pos) {
                 this.sync();
@@ -142,9 +148,8 @@ export class CanvasController {
             this.start_pos = null;
         }
         
-        this.canvas.addEventListener('mouseup', endHandler)
-        this.canvas.addEventListener('mouseup', endHandler)
-        this.canvas.addEventListener('touchend', endHandler)
+        this.canvas.addEventListener('pointerup', endHandler)
+        this.canvas.addEventListener('pointerleave', endHandler)
     }
 
     sync() {

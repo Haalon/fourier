@@ -29,7 +29,7 @@ export class CanvasController {
         this.viewsize = new Float32Array([this.canvas.width, this.canvas.height]);
 
         // preserveDrawingBuffer allows us to take screenshots
-        var gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
+        const gl = canvas.getContext("webgl2", {preserveDrawingBuffer: true});
         if (!gl) {
             alert('Your device does not support webgl2')
             throw new Error('no webgl2');
@@ -88,36 +88,46 @@ export class CanvasController {
 
     _swapTextures() {
         this.sync();
-        var tmp = this.tex_main;
+        let tmp = this.tex_main;
         this.tex_main = this.tex_temp1
         this.tex_temp1 = tmp;
     };
 
-    _getMousePos(event) {
-        var rect = this.canvas.getBoundingClientRect();
+    _getMousePos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+
+        const currentY = e.touches ?  e.touches[0].pageY : e.pageY;
+        const currentX = e.touches ?  e.touches[0].pageX : e.pageX;
+
         const height = rect.bottom - rect.top;
         const resolutionCoeff = this.canvas.height / height;
         return [
-            (event.pageX - rect.left) * resolutionCoeff,
-            (height - (event.pageY - rect.top)) * resolutionCoeff,
+            (currentX - rect.left) * resolutionCoeff,
+            (height - (currentY - rect.top)) * resolutionCoeff,
         ];
     };
 
     _addEvents() {
         this.start_pos = null
-        this.canvas.addEventListener('mousedown', e => {
+        const startHandler = e => {
             e.stopPropagation();
             this.start_pos = this._getMousePos(e);
             this.draw(this.start_pos, this.start_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
-        })
-        this.canvas.addEventListener('mousemove', e => {
+        }
+        this.canvas.addEventListener('mousedown', startHandler)
+        this.canvas.addEventListener('touchstart', startHandler)
+
+        const moveHandler = e => {
             e.stopPropagation();
             if (!this.start_pos) return;
             const end_pos = this._getMousePos(e);
             this.draw(this.start_pos, end_pos, brushSettings.color, brushSettings.size, brushSettings.mode);
             this.start_pos = end_pos;
-        })
-        this.canvas.addEventListener('mouseup', e => {
+        }
+        this.canvas.addEventListener('mousemove', moveHandler)
+        this.canvas.addEventListener('touchmove', moveHandler)
+
+        const endHandler = e => {
             e.stopPropagation();
             
             if (this.drawHook && this.start_pos) {
@@ -125,17 +135,11 @@ export class CanvasController {
                 this.drawHook(this);
             }
             this.start_pos = null;
-        })
-
-        this.canvas.addEventListener('mouseleave', e => {
-            e.stopPropagation();
-           
-            if (this.drawHook && this.start_pos) {
-                this.sync();
-                this.drawHook(this);
-            }
-            this.start_pos = null;
-        })
+        }
+        
+        this.canvas.addEventListener('mouseup', endHandler)
+        this.canvas.addEventListener('mouseup', endHandler)
+        this.canvas.addEventListener('touchend', endHandler)
     }
 
     sync() {
@@ -151,12 +155,12 @@ export class CanvasController {
         
         texture = texture ? texture : this.tex_main;
 
-        var framebuffer = gl.createFramebuffer();
+        const framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.texture, 0);
     
         // Read the contents of the framebuffer
-        var data = new Float32Array(width * height * 4);
+        const data = new Float32Array(width * height * 4);
         gl.readPixels(0, 0, width, height, gl.RGBA, gl.FLOAT, data);
 
         return data;
@@ -276,7 +280,7 @@ export class CanvasController {
 
     dft() {
         function arrayMax(arr) {
-            var len = arr.length, max = -Infinity;
+            let len = arr.length, max = -Infinity;
             while (len--) {
               if (arr[len] > max) {
                 max = arr[len];

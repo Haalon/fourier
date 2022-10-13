@@ -119,9 +119,9 @@ export class CanvasController {
 
             // in case we want pointerleave have same behaviour with mouse and touch
             // otherwise it is not fired when touch leaves the canvas
-            if (e.target.hasPointerCapture(e.pointerId)) {
-                e.target.releasePointerCapture(e.pointerId);
-            }
+            // if (e.target.hasPointerCapture(e.pointerId)) {
+            //     e.target.releasePointerCapture(e.pointerId);
+            // }
 
             this.start_pos = this._getMousePos(e);
             this.draw(this.start_pos, this.start_pos, brushSettings.color, brushSettings.size, brushSettings.mode);

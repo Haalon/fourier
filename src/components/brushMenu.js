@@ -1,11 +1,13 @@
-import { brushSettings } from '../brushSettings.js';
+import { brushSettings } from "../brushSettings.js";
 
-import commonCSS from '../../style.css';
-import { BaseComponent } from '../baseComponent.js';
+import commonCSS from "../../style.css";
+import { BaseComponent } from "../baseComponent.js";
 
 export class BrushMenu extends BaseComponent {
-    get css() {
-        return commonCSS + /*css*/`
+  get css() {
+    return (
+      commonCSS +
+      /*css*/ `
             canvas {
                 border: 1px grey solid;
             }
@@ -17,10 +19,11 @@ export class BrushMenu extends BaseComponent {
             button[selected] {
                 background-color: #999;
             }
-        `;
-    }
-    get html() {
-        return  /*html*/`
+        `
+    );
+  }
+  get html() {
+    return /*html*/ `
         <div id="main" class="column flex-grow-1">
             <div class="row justify-center">
                 <span>Brush controls</span>
@@ -43,37 +46,37 @@ export class BrushMenu extends BaseComponent {
             </div>
         </div>
         `;
+  }
+
+  _selectMode(mode) {
+    for (const i of [0, 1, 2]) {
+      this.elems[`mode${i}`].removeAttribute("selected");
     }
 
-    _selectMode(mode) {
-        for (const i of [0,1,2]) {
-            this.elems[`mode${i}`].removeAttribute('selected');
-        }
+    this.elems[`mode${mode}`].setAttribute("selected", true);
+    brushSettings.mode = mode;
+  }
 
-        this.elems[`mode${mode}`].setAttribute('selected', true);
-        brushSettings.mode = mode;
-    }
+  connectedCallback() {
+    const elems = this.elems;
 
-    connectedCallback() {
-        const elems = this.elems;
+    elems.color.addEventListener("input", (e) => {
+      const color = e.target.value;
+      const r = parseInt(color.substr(1, 2), 16) / 255;
+      const g = parseInt(color.substr(3, 2), 16) / 255;
+      const b = parseInt(color.substr(5, 2), 16) / 255;
 
-        elems.color.addEventListener("input", (e) => {
-            const color = e.target.value;
-            const r = parseInt(color.substr(1,2), 16) / 255;
-            const g = parseInt(color.substr(3,2), 16) / 255;
-            const b = parseInt(color.substr(5,2), 16) / 255;
+      brushSettings.color = [r, g, b];
+    });
 
-            brushSettings.color = [r,g,b];
-        });
+    elems.mode0.onclick = (e) => this._selectMode(0);
+    elems.mode1.onclick = (e) => this._selectMode(1);
+    elems.mode2.onclick = (e) => this._selectMode(2);
 
-        elems.mode0.onclick = (e) => this._selectMode(0);
-        elems.mode1.onclick = (e) => this._selectMode(1);
-        elems.mode2.onclick = (e) => this._selectMode(2);
-
-        elems.size.onchange = (e) => {
-            brushSettings.size = +e.target.value;
-        }
-    }
+    elems.size.onchange = (e) => {
+      brushSettings.size = +e.target.value;
+    };
+  }
 }
 
 customElements.define("brush-menu", BrushMenu);

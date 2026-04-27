@@ -1,25 +1,27 @@
-import {CanvasController} from './canvasController.js'
-import { loadImageByFile, resizeImage } from '../imageUtils.js'
-import commonCSS from '../../style.css';
+import commonCSS from "../../style.css";
+import { loadImageByFile, resizeImage } from "../imageUtils.js";
+import { CanvasController } from "./canvasController.js";
 // icons
-import flipX from '../icons/flip-x.svg'
-import flipY from '../icons/flip-y.svg'
-import rotRight from '../icons/rotate-right.svg'
-import rotLeft from '../icons/rotate-left.svg'
-import negate from '../icons/negate.svg'
+import flipX from "../icons/flip-x.svg";
+import flipY from "../icons/flip-y.svg";
+import negate from "../icons/negate.svg";
+import rotLeft from "../icons/rotate-left.svg";
+import rotRight from "../icons/rotate-right.svg";
 
-import up from '../icons/up.svg'
-import left from '../icons/left.svg'
-import right from '../icons/right.svg'
-import down from '../icons/down.svg'
+import down from "../icons/down.svg";
+import left from "../icons/left.svg";
+import right from "../icons/right.svg";
+import up from "../icons/up.svg";
 
-import zoomIn from '../icons/zoom-in.svg'
-import zoomOut from '../icons/zoom-out.svg'
-import { BaseComponent } from '../baseComponent.js';
+import { BaseComponent } from "../baseComponent.js";
+import zoomIn from "../icons/zoom-in.svg";
+import zoomOut from "../icons/zoom-out.svg";
 
 export class CanvasContainer extends BaseComponent {
-    get css() {
-        return commonCSS + /*css*/`
+  get css() {
+    return (
+      commonCSS +
+      /*css*/ `
             :host {
                 flex: 1;
             }
@@ -47,10 +49,11 @@ export class CanvasContainer extends BaseComponent {
             }
 
             svg {width: 100%; height: auto;}
-        `;
-    }
-    get html() {
-        return  /*html*/`
+        `
+    );
+  }
+  get html() {
+    return /*html*/ `
         <div class="column flex-grow-1">
             <div class="row justify-center">
                 <span id="title"></span>
@@ -83,121 +86,118 @@ export class CanvasContainer extends BaseComponent {
             </div>
         </div>
         `;
-    }
+  }
 
-    notifyImageChange() {
-        const event = new CustomEvent('image-change', {detail: {main: this.isMain}});
+  notifyImageChange() {
+    const event = new CustomEvent("image-change", { detail: { main: this.isMain } });
 
-        document.dispatchEvent(event);
-    }
+    document.dispatchEvent(event);
+  }
 
-    _saveImage() {
-        const img = this.controller.getImage();
+  _saveImage() {
+    const img = this.controller.getImage();
 
-        const link = document.createElement("a");
-        link.href = img.src;
-        link.download = "image" + ".png";
-        link.style.display = "none";
-        const evt = new MouseEvent("click", {
-            "view": window,
-            "bubbles": true,
-            "cancelable": true
-        });
+    const link = document.createElement("a");
+    link.href = img.src;
+    link.download = "image" + ".png";
+    link.style.display = "none";
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
 
-        document.body.appendChild(link);
-        link.dispatchEvent(evt);
-        document.body.removeChild(link);
-    }
+    document.body.appendChild(link);
+    link.dispatchEvent(evt);
+    document.body.removeChild(link);
+  }
 
-    async _setImage(img) {
-        const file = this.fileInput.files[0];
-        if (!img)
-            img = await loadImageByFile(file);
+  async _setImage(img) {
+    const file = this.fileInput.files[0];
+    if (!img) img = await loadImageByFile(file);
 
-        img = await resizeImage(img, this.controller.dimension, this.controller.dimension);
+    img = await resizeImage(img, this.controller.dimension, this.controller.dimension);
 
-        this.previousImg = img;
-    
-        this.controller.setImage(img);
-        this.notifyImageChange();
-    }
+    this.previousImg = img;
 
-    connectedCallback() {
-        this.canvas = this.shadowRoot.querySelector('canvas');
-        this.isMain = this.hasAttribute('is-main');
-        this.controller = new CanvasController(this.canvas, this.isMain);
-        this.controller.drawHook = () => this.notifyImageChange();
+    this.controller.setImage(img);
+    this.notifyImageChange();
+  }
 
-        const elems = this.elems;
-        this.fileInput = elems['file-input'];
-        elems['title'].innerHTML = this.getAttribute('title');
+  connectedCallback() {
+    this.canvas = this.shadowRoot.querySelector("canvas");
+    this.isMain = this.hasAttribute("is-main");
+    this.controller = new CanvasController(this.canvas, this.isMain);
+    this.controller.drawHook = () => this.notifyImageChange();
 
-        elems['file-input'].onchange = () => this._setImage();
-        elems['save-btn'].onclick = () => this._saveImage();
-        elems['reset-btn'].onclick = () => {
-            if (!this.previousImg) return;
-            this.controller.setImage(this.previousImg);
-            this.notifyImageChange();
-        }
+    const elems = this.elems;
+    this.fileInput = elems["file-input"];
+    elems["title"].innerHTML = this.getAttribute("title");
 
+    elems["file-input"].onchange = () => this._setImage();
+    elems["save-btn"].onclick = () => this._saveImage();
+    elems["reset-btn"].onclick = () => {
+      if (!this.previousImg) return;
+      this.controller.setImage(this.previousImg);
+      this.notifyImageChange();
+    };
 
-        elems['flip-x-btn'].onclick = () => { 
-            this.controller.flipX();
-            this.notifyImageChange();
-        };
-        elems['flip-y-btn'].onclick = () => { 
-            this.controller.flipY();
-            this.notifyImageChange();
-        };
+    elems["flip-x-btn"].onclick = () => {
+      this.controller.flipX();
+      this.notifyImageChange();
+    };
+    elems["flip-y-btn"].onclick = () => {
+      this.controller.flipY();
+      this.notifyImageChange();
+    };
 
-        elems['rot-l-btn'].onclick = () => { 
-            this.controller.rotateLeft();
-            this.notifyImageChange();
-        };
-        elems['rot-r-btn'].onclick = () => { 
-            this.controller.rotateRight();
-            this.notifyImageChange();
-        };
+    elems["rot-l-btn"].onclick = () => {
+      this.controller.rotateLeft();
+      this.notifyImageChange();
+    };
+    elems["rot-r-btn"].onclick = () => {
+      this.controller.rotateRight();
+      this.notifyImageChange();
+    };
 
-        elems['negate-btn'].onclick = () => { 
-            this.controller.negate();
-            this.notifyImageChange();
-        };
+    elems["negate-btn"].onclick = () => {
+      this.controller.negate();
+      this.notifyImageChange();
+    };
 
-        const quarterDim = Math.floor(this.controller.dimension / 4);
-        // translation
-        elems['up-btn'].onclick = () => { 
-            this.controller.shift(0, -quarterDim);
-            this.notifyImageChange();
-        };
+    const quarterDim = Math.floor(this.controller.dimension / 4);
+    // translation
+    elems["up-btn"].onclick = () => {
+      this.controller.shift(0, -quarterDim);
+      this.notifyImageChange();
+    };
 
-        elems['down-btn'].onclick = () => { 
-            this.controller.shift(0, quarterDim);
-            this.notifyImageChange();
-        };
+    elems["down-btn"].onclick = () => {
+      this.controller.shift(0, quarterDim);
+      this.notifyImageChange();
+    };
 
-        elems['left-btn'].onclick = () => { 
-            this.controller.shift(quarterDim, 0);
-            this.notifyImageChange();
-        };
+    elems["left-btn"].onclick = () => {
+      this.controller.shift(quarterDim, 0);
+      this.notifyImageChange();
+    };
 
-        elems['right-btn'].onclick = () => { 
-            this.controller.shift(-quarterDim, 0);
-            this.notifyImageChange();
-        };
+    elems["right-btn"].onclick = () => {
+      this.controller.shift(-quarterDim, 0);
+      this.notifyImageChange();
+    };
 
-        // zoom
-        elems['zoom-in-btn'].onclick = () => { 
-            this.controller.zoom(0.5);
-            this.notifyImageChange();
-        };
+    // zoom
+    elems["zoom-in-btn"].onclick = () => {
+      this.controller.zoom(0.5);
+      this.notifyImageChange();
+    };
 
-        elems['zoom-out-btn'].onclick = () => { 
-            this.controller.zoom(2);
-            this.notifyImageChange();
-        };
-
-    }
+    elems["zoom-out-btn"].onclick = () => {
+      this.controller.zoom(2);
+      this.notifyImageChange();
+    };
+  }
 }
 
 customElements.define("canvas-container", CanvasContainer);

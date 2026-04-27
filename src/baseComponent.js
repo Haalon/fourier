@@ -1,30 +1,25 @@
-
-
 export class BaseComponent extends HTMLElement {
-    #getElementsWithId() {
+  #getElementsWithId() {
+    const res = {};
+    const elems = this.shadowRoot.querySelectorAll("[id]");
 
-        const res = {}
-        const elems = this.shadowRoot.querySelectorAll('[id]')
-    
-        for (const el of elems)
-            res[el.id] = el
-    
-    
-        return res;
-    }
+    for (const el of elems) res[el.id] = el;
 
-    get css() {
-        return /*css*/``;
-    }
+    return res;
+  }
 
-    get html() {
-        return  /*html*/``;
-    }
+  get css() {
+    return /*css*/ ``;
+  }
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open'});
-        this.shadowRoot.innerHTML = `<style>${this.css}</style>` + this.html;
-        this.elems = this.#getElementsWithId();
-    }
+  get html() {
+    return /*html*/ ``;
+  }
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this.shadowRoot.innerHTML = `<style>${this.css}</style>` + this.html;
+    this.elems = this.#getElementsWithId();
+  }
 }

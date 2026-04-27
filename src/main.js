@@ -1,1 +1,1 @@
-import { app } from './components/app.js'
+import { app } from "./components/app.js";

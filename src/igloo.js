@@ -6,16 +6,16 @@
  * @namespace
  */
 export function Igloo(gl, options) {
-    var canvas;
-    if (gl instanceof HTMLCanvasElement) {
-        canvas = gl;
-        gl = Igloo.getContext(gl, options);
-    } else {
-        canvas = gl.canvas;
-    }
-    this.gl = gl;
-    this.canvas = canvas;
-    this.defaultFramebuffer = new Igloo.Framebuffer(gl, null);
+  var canvas;
+  if (gl instanceof HTMLCanvasElement) {
+    canvas = gl;
+    gl = Igloo.getContext(gl, options);
+  } else {
+    canvas = gl.canvas;
+  }
+  this.gl = gl;
+  this.canvas = canvas;
+  this.defaultFramebuffer = new Igloo.Framebuffer(gl, null);
 }
 
 /**
@@ -31,16 +31,16 @@ Igloo.QUAD2 = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
  * @param {Function} [callback] if provided, call is asynchronous
  * @returns {string}
  */
-Igloo.fetch = function(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, Boolean(callback));
-    if (callback != null) {
-        xhr.onload = function() {
-            callback(xhr.responseText);
-        };
-    }
-    xhr.send();
-    return xhr.responseText;
+Igloo.fetch = function (url, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url, Boolean(callback));
+  if (callback != null) {
+    xhr.onload = function () {
+      callback(xhr.responseText);
+    };
+  }
+  xhr.send();
+  return xhr.responseText;
 };
 
 /**
@@ -49,37 +49,36 @@ Igloo.fetch = function(url, callback) {
  * @param {boolean} [noerror] If true, return null instead of throwing
  * @returns {?WebGLRenderingContext} a WebGL rendering context.
  */
-Igloo.getContext = function(canvas, options, noerror) {
-    var gl;
-    try {
-        gl = canvas.getContext('webgl', options || {}) ||
-            canvas.getContext('experimental-webgl', options || {});
-    } catch (e) {
-        gl = null;
-    }
-    if (gl == null && !noerror) {
-        throw new Error('Could not create WebGL context.');
-    } else {
-        return gl;
-    }
+Igloo.getContext = function (canvas, options, noerror) {
+  var gl;
+  try {
+    gl = canvas.getContext("webgl", options || {}) || canvas.getContext("experimental-webgl", options || {});
+  } catch (e) {
+    gl = null;
+  }
+  if (gl == null && !noerror) {
+    throw new Error("Could not create WebGL context.");
+  } else {
+    return gl;
+  }
 };
 
 /**
  * @param {string} string
  * @returns {boolean} True if the string looks like a URL
  */
-Igloo.looksLikeURL = function(string) {
-    return /\s/.exec(string) == null;
+Igloo.looksLikeURL = function (string) {
+  return /\s/.exec(string) == null;
 };
 
 /**
  * @param {*} object
  * @returns {boolean} true if object is an array or typed array
  */
-Igloo.isArray = function(object) {
-    var name = Object.prototype.toString.apply(object, []),
-        re = / (Float(32|64)|Int(16|32|8)|Uint(16|32|8(Clamped)?))?Array]$/;
-    return re.exec(name) != null;
+Igloo.isArray = function (object) {
+  var name = Object.prototype.toString.apply(object, []),
+    re = / (Float(32|64)|Int(16|32|8)|Uint(16|32|8(Clamped)?))?Array]$/;
+  return re.exec(name) != null;
 };
 
 /**
@@ -90,14 +89,14 @@ Igloo.isArray = function(object) {
  * @param {Function} [transform] Transforms the shaders before compilation
  * @returns {Igloo.Program}
  */
-Igloo.prototype.program = function(vertex, fragment, transform) {
-    if (Igloo.looksLikeURL(vertex)) vertex = Igloo.fetch(vertex);
-    if (Igloo.looksLikeURL(fragment)) fragment = Igloo.fetch(fragment);
-    if (transform != null) {
-        vertex = transform(vertex);
-        fragment = transform(fragment);
-    }
-    return new Igloo.Program(this.gl, vertex, fragment);
+Igloo.prototype.program = function (vertex, fragment, transform) {
+  if (Igloo.looksLikeURL(vertex)) vertex = Igloo.fetch(vertex);
+  if (Igloo.looksLikeURL(fragment)) fragment = Igloo.fetch(fragment);
+  if (transform != null) {
+    vertex = transform(vertex);
+    fragment = transform(fragment);
+  }
+  return new Igloo.Program(this.gl, vertex, fragment);
 };
 
 /**
@@ -106,13 +105,13 @@ Igloo.prototype.program = function(vertex, fragment, transform) {
  * @param {GLenum} [usage]
  * @returns {Igloo.Buffer}
  */
-Igloo.prototype.array = function(data, usage) {
-    var gl = this.gl,
-        buffer = new Igloo.Buffer(gl, gl.ARRAY_BUFFER);
-    if (data != null) {
-        buffer.update(data, usage == null ? gl.STATIC_DRAW : usage);
-    }
-    return buffer;
+Igloo.prototype.array = function (data, usage) {
+  var gl = this.gl,
+    buffer = new Igloo.Buffer(gl, gl.ARRAY_BUFFER);
+  if (data != null) {
+    buffer.update(data, usage == null ? gl.STATIC_DRAW : usage);
+  }
+  return buffer;
 };
 
 /**
@@ -121,13 +120,13 @@ Igloo.prototype.array = function(data, usage) {
  * @param {GLenum} [usage]
  * @returns {Igloo.Buffer}
  */
-Igloo.prototype.elements = function(data, usage) {
-    var gl = this.gl,
-        buffer = new Igloo.Buffer(gl, gl.ELEMENT_ARRAY_BUFFER);
-    if (data != null) {
-        buffer.update(data, usage == null ? gl.STATIC_DRAW : usage);
-    }
-    return buffer;
+Igloo.prototype.elements = function (data, usage) {
+  var gl = this.gl,
+    buffer = new Igloo.Buffer(gl, gl.ELEMENT_ARRAY_BUFFER);
+  if (data != null) {
+    buffer.update(data, usage == null ? gl.STATIC_DRAW : usage);
+  }
+  return buffer;
 };
 
 /**
@@ -140,27 +139,26 @@ Igloo.prototype.elements = function(data, usage) {
  * @param {Object} [options = {type: 'ArrayBufferView', width, height} || {}]
  * @returns {Igloo.Texture}
  */
-Igloo.prototype.texture = function(source, format, wrap, filter, type, internalFormat, options) {
-    var texture = new Igloo.Texture(this.gl, format, wrap, filter, type, internalFormat);
-    if (source != null) {
-        if (options && options.type === 'ArrayBufferView') {
-          texture.set(source, options.width, options.height);
-        }
-        else {
-          texture.set(source);
-        }
+Igloo.prototype.texture = function (source, format, wrap, filter, type, internalFormat, options) {
+  var texture = new Igloo.Texture(this.gl, format, wrap, filter, type, internalFormat);
+  if (source != null) {
+    if (options && options.type === "ArrayBufferView") {
+      texture.set(source, options.width, options.height);
+    } else {
+      texture.set(source);
     }
-    return texture;
+  }
+  return texture;
 };
 
 /**
  * @param {Igloo.Texture} [texture]
  * @returns {Igloo.Framebuffer}
  */
-Igloo.prototype.framebuffer = function(texture) {
-    var framebuffer = new Igloo.Framebuffer(this.gl);
-    if (texture != null) framebuffer.attach(texture);
-    return framebuffer;
+Igloo.prototype.framebuffer = function (texture) {
+  var framebuffer = new Igloo.Framebuffer(this.gl);
+  if (texture != null) framebuffer.attach(texture);
+  return framebuffer;
 };
 
 /**
@@ -172,16 +170,16 @@ Igloo.prototype.framebuffer = function(texture) {
  * @param {string} fragment Shader source
  * @constructor
  */
-Igloo.Program = function(gl, vertex, fragment) {
-    this.gl = gl;
-    var p = this.program = gl.createProgram();
-    gl.attachShader(p, this.makeShader(gl.VERTEX_SHADER, vertex));
-    gl.attachShader(p, this.makeShader(gl.FRAGMENT_SHADER, fragment));
-    gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-        throw new Error(gl.getProgramInfoLog(p));
-    }
-    this.vars = {};
+Igloo.Program = function (gl, vertex, fragment) {
+  this.gl = gl;
+  var p = (this.program = gl.createProgram());
+  gl.attachShader(p, this.makeShader(gl.VERTEX_SHADER, vertex));
+  gl.attachShader(p, this.makeShader(gl.FRAGMENT_SHADER, fragment));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    throw new Error(gl.getProgramInfoLog(p));
+  }
+  this.vars = {};
 };
 
 /**
@@ -190,25 +188,25 @@ Igloo.Program = function(gl, vertex, fragment) {
  * @param {string} source
  * @returns {WebGLShader}
  */
-Igloo.Program.prototype.makeShader = function(type, source) {
-    var gl = this.gl;
-    var shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        return shader;
-    } else {
-        throw new Error(gl.getShaderInfoLog(shader));
-    }
+Igloo.Program.prototype.makeShader = function (type, source) {
+  var gl = this.gl;
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    return shader;
+  } else {
+    throw new Error(gl.getShaderInfoLog(shader));
+  }
 };
 
 /**
  * Tell WebGL to use this program right now.
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.use = function() {
-    this.gl.useProgram(this.program);
-    return this;
+Igloo.Program.prototype.use = function () {
+  this.gl.useProgram(this.program);
+  return this;
 };
 
 /**
@@ -218,27 +216,27 @@ Igloo.Program.prototype.use = function() {
  * @param {boolean} [i] if true use the integer version
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.uniform = function(name, value, i, dim) {
-    if (value == null) {
-        this.vars[name] = this.gl.getUniformLocation(this.program, name);
+Igloo.Program.prototype.uniform = function (name, value, i, dim) {
+  if (value == null) {
+    this.vars[name] = this.gl.getUniformLocation(this.program, name);
+  } else {
+    if (this.vars[name] == null) this.uniform(name);
+    var v = this.vars[name];
+    if (Igloo.isArray(value)) {
+      var l = dim ? dim : value.length;
+      var method = "uniform" + l + (i ? "i" : "f") + "v";
+      this.gl[method](v, value);
+    } else if (typeof value === "number" || typeof value === "boolean") {
+      if (i) {
+        this.gl.uniform1i(v, value);
+      } else {
+        this.gl.uniform1f(v, value);
+      }
     } else {
-        if (this.vars[name] == null) this.uniform(name);
-        var v = this.vars[name];
-        if (Igloo.isArray(value)) {
-            var l = dim ? dim : value.length;
-            var method = 'uniform' + l + (i ? 'i' : 'f') + 'v';
-            this.gl[method](v, value);
-        } else if (typeof value === 'number' || typeof value === 'boolean') {
-            if (i) {
-                this.gl.uniform1i(v, value);
-            } else {
-                this.gl.uniform1f(v, value);
-            }
-        } else {
-            throw new Error('Invalid uniform value: ' + value);
-        }
+      throw new Error("Invalid uniform value: " + value);
     }
-    return this;
+  }
+  return this;
 };
 
 /**
@@ -248,19 +246,19 @@ Igloo.Program.prototype.uniform = function(name, value, i, dim) {
  * @param {boolean} [transpose=false]
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.matrix = function(name, matrix, transpose) {
-    if (this.vars[name] == null) this.uniform(name);
-    var method = 'uniformMatrix' + Math.sqrt(matrix.length) + 'fv';
-    this.gl[method](this.vars[name], Boolean(transpose), matrix);
-    return this;
+Igloo.Program.prototype.matrix = function (name, matrix, transpose) {
+  if (this.vars[name] == null) this.uniform(name);
+  var method = "uniformMatrix" + Math.sqrt(matrix.length) + "fv";
+  this.gl[method](this.vars[name], Boolean(transpose), matrix);
+  return this;
 };
 
 /**
  * Like the uniform() method, but using integers.
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.uniformi = function(name, value) {
-    return this.uniform(name, value, true);
+Igloo.Program.prototype.uniformi = function (name, value) {
+  return this.uniform(name, value, true);
 };
 
 /**
@@ -271,18 +269,17 @@ Igloo.Program.prototype.uniformi = function(name, value) {
  * @param {number} [stride=0]
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.attrib = function(name, value, size, stride) {
-    var gl = this.gl;
-    if (value == null) {
-        this.vars[name] = gl.getAttribLocation(this.program, name);
-    } else {
-        if (this.vars[name] == null) this.attrib(name); // get location
-        value.bind();
-        gl.enableVertexAttribArray(this.vars[name]);
-        gl.vertexAttribPointer(this.vars[name], size, gl.FLOAT,
-                               false, stride == null ? 0 : stride, 0);
-    }
-    return this;
+Igloo.Program.prototype.attrib = function (name, value, size, stride) {
+  var gl = this.gl;
+  if (value == null) {
+    this.vars[name] = gl.getAttribLocation(this.program, name);
+  } else {
+    if (this.vars[name] == null) this.attrib(name); // get location
+    value.bind();
+    gl.enableVertexAttribArray(this.vars[name]);
+    gl.vertexAttribPointer(this.vars[name], size, gl.FLOAT, false, stride == null ? 0 : stride, 0);
+  }
+  return this;
 };
 
 /**
@@ -292,34 +289,33 @@ Igloo.Program.prototype.attrib = function(name, value, size, stride) {
  * @param {GLenum} [type] use glDrawElements of this type
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.draw = function(mode, count, type) {
-    var gl = this.gl;
-    if (type == null) {
-        gl.drawArrays(mode, 0, count);
-    } else {
-        gl.drawElements(mode, count, type, 0);
-    }
-    if (gl.getError() !== gl.NO_ERROR) {
-        throw new Error('WebGL rendering error');
-    }
-    return this;
+Igloo.Program.prototype.draw = function (mode, count, type) {
+  var gl = this.gl;
+  if (type == null) {
+    gl.drawArrays(mode, 0, count);
+  } else {
+    gl.drawElements(mode, count, type, 0);
+  }
+  if (gl.getError() !== gl.NO_ERROR) {
+    throw new Error("WebGL rendering error");
+  }
+  return this;
 };
-
 
 /**
  * Disables all attribs from this program.
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.disable = function() {
-    for (var attrib in this.vars) {
-        var location = this.vars[attrib];
-        if (this.vars.hasOwnProperty(attrib)) {
-            if (typeof location === 'number') {
-                this.gl.disableVertexAttribArray(location);
-            }
-        }
+Igloo.Program.prototype.disable = function () {
+  for (var attrib in this.vars) {
+    var location = this.vars[attrib];
+    if (this.vars.hasOwnProperty(attrib)) {
+      if (typeof location === "number") {
+        this.gl.disableVertexAttribArray(location);
+      }
     }
-    return this;
+  }
+  return this;
 };
 
 /**
@@ -329,20 +325,20 @@ Igloo.Program.prototype.disable = function() {
  * @returns {WebGLProgram}
  * @constructor
  */
-Igloo.Buffer = function(gl, target) {
-    this.gl = gl;
-    this.buffer = gl.createBuffer();
-    this.target = (target == null ? gl.ARRAY_BUFFER : target);
-    this.size = -1;
+Igloo.Buffer = function (gl, target) {
+  this.gl = gl;
+  this.buffer = gl.createBuffer();
+  this.target = target == null ? gl.ARRAY_BUFFER : target;
+  this.size = -1;
 };
 
 /**
  * Binds this buffer to ARRAY_BUFFER.
  * @returns {Igloo.Buffer} this
  */
-Igloo.Buffer.prototype.bind = function() {
-    this.gl.bindBuffer(this.target, this.buffer);
-    return this;
+Igloo.Buffer.prototype.bind = function () {
+  this.gl.bindBuffer(this.target, this.buffer);
+  return this;
 };
 
 /**
@@ -351,20 +347,20 @@ Igloo.Buffer.prototype.bind = function() {
  * @param {GLenum} [usage]
  * @returns {Igloo.Buffer} this
  */
-Igloo.Buffer.prototype.update = function(data, usage) {
-    var gl = this.gl;
-    if (data instanceof Array) {
-        data = new Float32Array(data);
-    }
-    usage = usage == null ? gl.DYNAMIC_DRAW : usage;
-    this.bind();
-    if (this.size !== data.byteLength) {
-        gl.bufferData(this.target, data, usage);
-        this.size = data.byteLength;
-    } else {
-        gl.bufferSubData(this.target, 0, data);
-    }
-    return this;
+Igloo.Buffer.prototype.update = function (data, usage) {
+  var gl = this.gl;
+  if (data instanceof Array) {
+    data = new Float32Array(data);
+  }
+  usage = usage == null ? gl.DYNAMIC_DRAW : usage;
+  this.bind();
+  if (this.size !== data.byteLength) {
+    gl.bufferData(this.target, data, usage);
+    this.size = data.byteLength;
+  } else {
+    gl.bufferSubData(this.target, 0, data);
+  }
+  return this;
 };
 
 /**
@@ -377,32 +373,32 @@ Igloo.Buffer.prototype.update = function(data, usage) {
  * @param {GLenum} [internalFormat=GL_RGBA]
  * @returns {Igloo.Texture}
  */
-Igloo.Texture = function(gl, format, wrap, filter, type, internalFormat) {
-    this.gl = gl;
-    var texture = this.texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    wrap = wrap == null ? gl.CLAMP_TO_EDGE : wrap;
-    filter = filter == null ? gl.LINEAR : filter;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
-    this.format = format == null ? gl.RGBA : format;
-    this.internalFormat = internalFormat == null ? gl.RGBA : internalFormat;
-    this.type = type == null ? gl.UNSIGNED_BYTE : type;
+Igloo.Texture = function (gl, format, wrap, filter, type, internalFormat) {
+  this.gl = gl;
+  var texture = (this.texture = gl.createTexture());
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  wrap = wrap == null ? gl.CLAMP_TO_EDGE : wrap;
+  filter = filter == null ? gl.LINEAR : filter;
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  this.format = format == null ? gl.RGBA : format;
+  this.internalFormat = internalFormat == null ? gl.RGBA : internalFormat;
+  this.type = type == null ? gl.UNSIGNED_BYTE : type;
 };
 
 /**
  * @param {number} [unit] active texture unit to bind
  * @returns {Igloo.Texture}
  */
-Igloo.Texture.prototype.bind = function(unit) {
-    var gl = this.gl;
-    if (unit != null) {
-        gl.activeTexture(gl.TEXTURE0 + unit);
-    }
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    return this;
+Igloo.Texture.prototype.bind = function (unit) {
+  var gl = this.gl;
+  if (unit != null) {
+    gl.activeTexture(gl.TEXTURE0 + unit);
+  }
+  gl.bindTexture(gl.TEXTURE_2D, this.texture);
+  return this;
 };
 
 /**
@@ -411,14 +407,12 @@ Igloo.Texture.prototype.bind = function(unit) {
  * @param {number} height
  * @returns {Igloo.Texture}
  */
-Igloo.Texture.prototype.blank = function(width, height) {
-    var gl = this.gl;
-    this.bind();
-    gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, width, height,
-                  0, this.format, this.type, null);
-    return this;
+Igloo.Texture.prototype.blank = function (width, height) {
+  var gl = this.gl;
+  this.bind();
+  gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, width, height, 0, this.format, this.type, null);
+  return this;
 };
-
 
 /**
  * Set the texture to a particular image.
@@ -427,25 +421,22 @@ Igloo.Texture.prototype.blank = function(width, height) {
  * @param {number} [height]
  * @returns {Igloo.Texture}
  */
-Igloo.Texture.prototype.set = function(source, width, height) {
-    var gl = this.gl;
-    this.bind();
-    if (source instanceof Array) {
-        if (this.type == gl.FLOAT) {
-            source = new Float32Array(source);
-        } else {
-            source = new Uint8Array(source);
-        }
-    }
-    if (width != null || height != null) {
-        gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat,
-                      width, height, 0, this.format,
-                      this.type, source);
+Igloo.Texture.prototype.set = function (source, width, height) {
+  var gl = this.gl;
+  this.bind();
+  if (source instanceof Array) {
+    if (this.type == gl.FLOAT) {
+      source = new Float32Array(source);
     } else {
-        gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat,
-                      this.format, this.type, source);
+      source = new Uint8Array(source);
     }
-    return this;
+  }
+  if (width != null || height != null) {
+    gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, width, height, 0, this.format, this.type, source);
+  } else {
+    gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, this.format, this.type, source);
+  }
+  return this;
 };
 
 /**
@@ -457,25 +448,22 @@ Igloo.Texture.prototype.set = function(source, width, height) {
  * @param {number} [height]
  * @returns {Igloo.Texture}
  */
-Igloo.Texture.prototype.subset = function(source, xoff, yoff, width, height) {
-    var gl = this.gl;
-    this.bind();
-    if (source instanceof Array) {
-        if (this.type == gl.FLOAT) {
-            source = new Float32Array(source);
-        } else {
-            source = new Uint8Array(source);
-        }
-    }
-    if (width != null || height != null) {
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff,
-                         width, height,
-                         this.format, this.type, source);
+Igloo.Texture.prototype.subset = function (source, xoff, yoff, width, height) {
+  var gl = this.gl;
+  this.bind();
+  if (source instanceof Array) {
+    if (this.type == gl.FLOAT) {
+      source = new Float32Array(source);
     } else {
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff,
-                         this.format, this.type, source);
+      source = new Uint8Array(source);
     }
-    return this;
+  }
+  if (width != null || height != null) {
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff, width, height, this.format, this.type, source);
+  } else {
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff, this.format, this.type, source);
+  }
+  return this;
 };
 
 /**
@@ -487,10 +475,10 @@ Igloo.Texture.prototype.subset = function(source, xoff, yoff, width, height) {
  * @param {number} height
  * @returns {Igloo.Texture}
  */
-Igloo.Texture.prototype.copy = function(x, y, width, height) {
-    var gl = this.gl;
-    gl.copyTexImage2D(gl.TEXTURE_2D, 0, this.internalFormat, x, y, width, height, 0);
-    return this;
+Igloo.Texture.prototype.copy = function (x, y, width, height) {
+  var gl = this.gl;
+  gl.copyTexImage2D(gl.TEXTURE_2D, 0, this.internalFormat, x, y, width, height, 0);
+  return this;
 };
 
 /**
@@ -498,67 +486,63 @@ Igloo.Texture.prototype.copy = function(x, y, width, height) {
  * @param {WebGLFramebuffer} [framebuffer] to be wrapped (null for default)
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer = function(gl, framebuffer) {
-    this.gl = gl;
-    this.framebuffer =
-        arguments.length == 2 ? framebuffer : gl.createFramebuffer();
-    this.renderbuffer = null;
+Igloo.Framebuffer = function (gl, framebuffer) {
+  this.gl = gl;
+  this.framebuffer = arguments.length == 2 ? framebuffer : gl.createFramebuffer();
+  this.renderbuffer = null;
 };
 
 /**
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.bind = function() {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
-    return this;
+Igloo.Framebuffer.prototype.bind = function () {
+  this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+  return this;
 };
 
 /**
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.unbind = function() {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-    return this;
+Igloo.Framebuffer.prototype.unbind = function () {
+  this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+  return this;
 };
 
 /**
  * @param {Igloo.Texture} texture
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.attach = function(texture, i=0) {
-    var gl = this.gl;
-    if (i==0) this.bind();
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0+i,
-                            gl.TEXTURE_2D, texture.texture, 0);
-    return this;
+Igloo.Framebuffer.prototype.attach = function (texture, i = 0) {
+  var gl = this.gl;
+  if (i == 0) this.bind();
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + i, gl.TEXTURE_2D, texture.texture, 0);
+  return this;
 };
 
 /**
  * @param {Igloo.Texture} array of textures
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.attachArr = function(textures) {
-    var gl = this.gl;
-    var ext = gl.getExtension('WEBGL_draw_buffers');
-    var attachIdx = 0;
-    var arr = [];
+Igloo.Framebuffer.prototype.attachArr = function (textures) {
+  var gl = this.gl;
+  var ext = gl.getExtension("WEBGL_draw_buffers");
+  var attachIdx = 0;
+  var arr = [];
 
-    this.bind();
-    textures.forEach(function(texture) {
-      var attachIdxStr = 'COLOR_ATTACHMENT' + attachIdx +'_WEBGL';
-      attachIdx += 1;
-      arr.push(ext[attachIdxStr]);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, ext[attachIdxStr],
-                              gl.TEXTURE_2D, texture.texture, 0);
-    });
+  this.bind();
+  textures.forEach(function (texture) {
+    var attachIdxStr = "COLOR_ATTACHMENT" + attachIdx + "_WEBGL";
+    attachIdx += 1;
+    arr.push(ext[attachIdxStr]);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, ext[attachIdxStr], gl.TEXTURE_2D, texture.texture, 0);
+  });
 
-    console.log('attachArr');
-    console.log(arr);
-    ext.drawBuffersWEBGL(arr);
+  console.log("attachArr");
+  console.log(arr);
+  ext.drawBuffersWEBGL(arr);
 
-    return this;
+  return this;
 };
-
 
 /**
  * Attach a renderbuffer as a depth buffer for depth-tested rendering.
@@ -566,15 +550,13 @@ Igloo.Framebuffer.prototype.attachArr = function(textures) {
  * @param {number} height
  * @returns {Igloo.Framebuffer}
  */
-Igloo.Framebuffer.prototype.attachDepth = function(width, height) {
-    var gl = this.gl;
-    this.bind();
-    if (this.renderbuffer == null) {
-        this.renderbuffer = gl.createRenderbuffer();
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,
-                               width, height);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT,
-                                   gl.RENDERBUFFER, this.renderbuffer);
-    }
-    return this;
+Igloo.Framebuffer.prototype.attachDepth = function (width, height) {
+  var gl = this.gl;
+  this.bind();
+  if (this.renderbuffer == null) {
+    this.renderbuffer = gl.createRenderbuffer();
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.renderbuffer);
+  }
+  return this;
 };

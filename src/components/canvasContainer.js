@@ -81,6 +81,7 @@ export class CanvasContainer extends BaseComponent {
 
             <div class="row justify-center">
                 <button id="save-btn">Save</button>
+                <button id="clear-btn">Clear</button>
                 <button id="reset-btn">Reset to last loaded</button>
                 <input type="file" id="file-input" accept="image/*">  
             </div>
@@ -136,6 +137,10 @@ export class CanvasContainer extends BaseComponent {
 
     elems["file-input"].onchange = () => this._setImage();
     elems["save-btn"].onclick = () => this._saveImage();
+    elems["clear-btn"].onclick = () => {
+      this.controller.clear();
+      this.notifyImageChange();
+    };
     elems["reset-btn"].onclick = () => {
       if (!this.previousImg) return;
       this.controller.setImage(this.previousImg);

@@ -367,6 +367,7 @@ export class CanvasController {
     // only a 1/64th of the whole texture, because maximum is usually in the center (0,0) anyway
     const magnSample = this.getArray(this.tex_temp1, Math.floor(this.dimension), Math.floor(this.dimension), gl.RGB);
     this.maxval = arrayMax(magnSample);
+
     const phase = this.getArray(this.tex_temp2);
 
     gl.deleteFramebuffer(this.frameBuffer.framebuffer);
@@ -451,6 +452,15 @@ export class CanvasController {
 
     gl.deleteFramebuffer(this.frameBuffer.framebuffer);
     this.frameBuffer = this.igloo.framebuffer();
+    this.show();
+  }
+
+  clear() {
+    const gl = this.gl;
+    this.frameBuffer.attach(this.tex_main);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     this.show();
   }
 
